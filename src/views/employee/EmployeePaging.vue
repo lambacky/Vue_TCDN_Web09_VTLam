@@ -7,10 +7,10 @@
             <div class="page-limit">
                 <div class="combobox">            
                     <input id="pageSize" class="input combobox-input" type="text" :value="filter.pageSize + ' bản ghi trên 1 trang'" readonly>
-                    <div class="combobox-button" @click="toggle">
+                    <div class="combobox-button" @click="toggleList">
                         <div class="icon icon-arrow-dropdown"></div>
                     </div>
-                    <div id="pageSizeList" class="combobox-data page-size-list" v-if="isShow">
+                    <div id="pageSizeList" class="combobox-data page-size-list" v-if="isShowList">
                         <div v-for="(item,index) in [10,20,30,50,100]" :key="index" class="data-item" :class="{'checked': filter.pageSize == item}" @click="selectPageSize(item)">{{item}} bản ghi trên 1 trang</div>
                     </div>
                 </div>
@@ -37,6 +37,12 @@ export default {
     }),
     methods: {
         ...mapActions(["setFilter", "getEmployee"]),
+
+        /**
+         * chọn số trang
+         * @param {int} pageNumber
+         * Author: Vũ Tùng Lâm (30/10/2022)
+         */
         selectPageNumber(pageNumber){
             this.setFilter({
                 pageSize: this.filter.pageSize,
@@ -45,7 +51,13 @@ export default {
             });
             this.getEmployee();
         },
+        /**
+         * chọn số lượng bản ghi mỗi trang
+         * @param {int} pageSize
+         * Author: Vũ Tùng Lâm (30/10/2022)
+         */
         selectPageSize(pageSize){
+            this.toggleList();
             this.setFilter({
                 pageSize: pageSize,
                 pageNumber: 1,
@@ -53,6 +65,11 @@ export default {
             });
             this.getEmployee();
         },
+
+        /**
+         * chọn trang trước
+         * Author: Vũ Tùng Lâm (30/10/2022)
+         */
         selectPrevPage(){
             this.setFilter({
                 pageSize: this.filter.pageSize,
@@ -61,6 +78,11 @@ export default {
             });
             this.getEmployee();
         },
+
+        /**
+         * chọn trang sau
+         * Author: Vũ Tùng Lâm (30/10/2022)
+         */
         selectNextPage(){
             this.setFilter({
                 pageSize: this.filter.pageSize,
@@ -69,13 +91,18 @@ export default {
             });
             this.getEmployee();
         },
-        toggle(){
-            this.isShow=!this.isShow;
+
+        /**
+         * Ẩn/hiện combobox
+         * Author: Vũ Tùng Lâm (30/10/2022)
+         */
+        toggleList(){
+            this.isShowList=!this.isShowList;
         },
     },
     data() {
         return {
-            isShow: false,
+            isShowList: false,
         }
     },
 }

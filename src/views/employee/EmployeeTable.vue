@@ -4,7 +4,7 @@
                     <thead>
                         <tr>
                             <th>
-                                <input id="checkboxAll" class="input-checkbox" type="checkbox">
+                                <input @change="checkAll" id="checkboxAll" class="input-checkbox" type="checkbox">
                             </th>
                             <th style="min-width:150px">MÃ NHÂN VIÊN</th>
                             <th style="min-width:170px">TÊN NHÂN VIÊN</th>
@@ -21,8 +21,8 @@
                     </thead>
                     <tbody>
                         <tr v-for="(emp,index) in employees" :key="index" @dblclick="modifyForm(emp)">
-                                <td>
-                                    <input class="input-checkbox" type="checkbox">
+                                <td @dblclick.stop>
+                                    <input @change="checkOne" class="input-checkbox" type="checkbox">
                                 </td>
                                 <td id="employeeCodeCell">{{emp.EmployeeCode}}</td>
                                 <td>{{emp.EmployeeName}}</td>
@@ -34,11 +34,11 @@
                                 <td>{{emp.BankAccountNumber}}</td>
                                 <td>{{emp.BankName}}</td>
                                 <td>{{emp.BankBranchName}}</td>
-                                <td :style="{'z-index': totalEmployee-index}">
+                                <td @dblclick.stop :style="{'z-index': employees.length-index}">
                                     <div class="table-function">
                                         <div class="modify" @click="modifyForm(emp)">Sửa</div>
                                         <div class="dropdown context-menu">
-                                            <div class="icon dropdown-button icon-arrow-down-blue" @click="toggle"></div>
+                                            <div class="icon dropdown-button icon-arrow-down-blue" @click="toggleList"></div>
                                             <div class="dropdown-list">
                                                 <div class="dropdown-item">Nhân bản</div>
                                                 <div @click="selectDelete(emp)" class="dropdown-item delete-item">Xóa</div>
@@ -74,6 +74,12 @@ export default {
             "setAlert",
 
         ]),
+
+        /**
+         * format lại ngày tháng
+         * @param {date} dob
+         * Author: Vũ Tùng Lâm (30/10/2022)
+         */
         formatDate(dob){
             if (dob) {
                 dob = new Date(dob);
@@ -91,19 +97,22 @@ export default {
             return dob;
         },
 
+        /**
+         * chỉnh sửa nhân viên
+         * @param {*} emp
+         * Author: Vũ Tùng Lâm (30/10/2022)
+         */
         modifyForm(emp){
             this.changeFormMode(FormMode.EDIT);
             this.selectEmployee(emp);
             this.toggleDialog();
         },
-        toggle(event){
-            let dropdownList = event.target.nextElementSibling;
-            if(dropdownList.style.display=="block"){
-                dropdownList.style.display="none";
-            }else{
-                dropdownList.style.display="block";
-            }
-        },
+
+        /**
+         * chọn xóa nhân viên
+         * @param {*} emp
+         * Author: Vũ Tùng Lâm (30/10/2022)
+         */
         selectDelete(emp){
             this.selectEmployee(emp);
             this.setAlert({
@@ -111,7 +120,42 @@ export default {
                 message: `Bạn có thực sự muốn xóa Nhân viên <${this.singleEmployee.EmployeeCode}> không?`,
                 action: AlertAction.CONFIRM_DELETE
             });
-            this.toggleAlert();
+
+        },
+
+        /**
+         * check tất cả checkbox
+         * @param {*} event
+         * Author: Vũ Tùng Lâm (30/10/2022)
+         */
+        checkAll(event){
+            let checkboxes = document.querySelectorAll("tbody input");
+            checkboxes.forEach(checkbox=>{checkbox.checked=event.target.checked});
+            document.querySelector('#btnDelete').disabled = !event.target.checked;
+        },
+
+        /**
+         * check từng checkbox
+         * Author: Vũ Tùng Lâm (30/10/2022)
+         */
+        checkOne(){
+            document.querySelector('#checkboxAll').checked = (document.querySelectorAll("tbody input:checked").length==document.querySelectorAll("tbody input").length);
+            document.querySelector('#btnDelete').disabled = (document.querySelectorAll("tbody input:checked").length==0);
+
+        },
+
+        /**
+         * Ẩn/hiện dropdown
+         * @param {*} event
+         * Author: Vũ Tùng Lâm (30/10/2022)
+         */
+        toggleList(event){
+            let dropdownList = event.target.nextElementSibling;
+            if(dropdownList.style.display=="block"){
+                dropdownList.style.display="none";
+            }else{
+                dropdownList.style.display="block";
+            }
         },
     },
     data() {

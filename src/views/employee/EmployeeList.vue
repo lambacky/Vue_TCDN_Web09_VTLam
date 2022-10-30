@@ -23,12 +23,15 @@
 
             <EmployeePaging />
             
-            <EmployeeAlert v-if="isShowAlert"/>
+            
         </div>
     </div>
 
     <!-- FORM DIALOG -->
-    <EmployeeDialog v-if="isShowDialog"/>
+    <EmployeeDialog v-if="isShowDialog" :isStore="isStore"
+      @isStoreDone="() => (this.isStore = false)"/>
+
+    <EmployeeAlert v-if="isShowAlert" @setIsStore="() => (this.isStore = true)"/>
 </template>
 
 <script>
@@ -50,22 +53,34 @@ export default {
         filter: (state) => state.employee.filter,
     }),
     created() {
+        //load dữ liệu nhân viên và phòng ban
         this.getEmployee();
+        this.getDepartment();
     },
     methods:{
         ...mapActions([
             "changeFormMode",
             "toggleDialog",
             "getEmployee",
+            "getDepartment",
             "selectEmployee",
             "setFilter",
         ]),
         
+        /**
+         * Mở form nhân viên
+         * Author:Vũ Tùng Lâm (30/10/2022)
+         */
         openForm(){
             this.selectEmployee({ Gender: Gender.MALE });
             this.changeFormMode(FormMode.STORE);
             this.toggleDialog();            
         },
+
+        /**
+         * Tìm kiếm nhân viên
+         * Author:Vũ Tùng Lâm (30/10/2022)
+         */
         searchEmployee(){
             this.setFilter({
                 pageSize: this.filter.pageSize,
@@ -74,6 +89,11 @@ export default {
             });
             this.getEmployee();
         },
+
+        /**
+         * refresh dữ liệu danh sách nhân viên
+         * Author:Vũ Tùng Lâm (30/10/2022)
+         */
         refreshTable(){
             this.$refs.inputSearch.value="";
             this.setFilter({
@@ -83,6 +103,11 @@ export default {
             });
             this.getEmployee();
         }
+    },
+    data() {
+        return {
+            isStore: false,
+        };
     },
     
 }
