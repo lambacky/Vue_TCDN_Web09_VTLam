@@ -5,15 +5,13 @@
         </div>
         <div class="paging-right">
             <div class="page-limit">
-                <div class="combobox">            
-                    <input id="pageSize" class="input combobox-input" type="text" :value="filter.pageSize + ' bản ghi trên 1 trang'" readonly>
-                    <div class="combobox-button" @click="toggleList">
-                        <div class="icon icon-arrow-dropdown"></div>
-                    </div>
-                    <div id="pageSizeList" class="combobox-data page-size-list" v-if="isShowList">
-                        <div v-for="(item,index) in [10,20,30,50,100]" :key="index" class="data-item" :class="{'checked': filter.pageSize == item}" @click="selectPageSize(item)">{{item}} bản ghi trên 1 trang</div>
-                    </div>
-                </div>
+                <BaseCombobox :dataList="[
+                        '10 bản ghi trên 1 trang',
+                        '20 bản ghi trên 1 trang',
+                        '30 bản ghi trên 1 trang',
+                        '50 bản ghi trên 1 trang',
+                        '100 bản ghi trên 1 trang',
+                        ]" :className="'page-size-list'" :selectedItem="filter.pageSize + ' bản ghi trên 1 trang'" @selectAction="selectPageSize"/>
             </div> 
             <div class="page-button">
                 <button :disabled="filter.pageNumber==1" class="btn-prev" @click="selectPrevPage">Trước</button>
@@ -28,8 +26,10 @@
 
 <script>
 import { mapState,mapActions } from 'vuex'
+import BaseCombobox from '../../components/base/BaseCombobox.vue'
 export default {
     name:"EmployeePaging",
+    components:{BaseCombobox},
     computed: mapState({
         totalEmployee: (state) => state.employee.totalEmployee,
         totalPage :(state) => state.employee.totalPage,
@@ -44,12 +44,13 @@ export default {
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         selectPageNumber(pageNumber){
-            this.setFilter({
-                pageSize: this.filter.pageSize,
+            const me = this;
+            me.setFilter({
+                pageSize: me.filter.pageSize,
                 pageNumber: pageNumber,
-                employeeFilter: this.filter.employeeFilter
+                employeeFilter: me.filter.employeeFilter
             });
-            this.getEmployee();
+            me.getEmployee();
         },
         /**
          * chọn số lượng bản ghi mỗi trang
@@ -57,13 +58,14 @@ export default {
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         selectPageSize(pageSize){
-            this.toggleList();
-            this.setFilter({
+            pageSize = pageSize.split(' ')[0];
+            const me = this;
+            me.setFilter({
                 pageSize: pageSize,
                 pageNumber: 1,
-                employeeFilter: this.filter.employeeFilter
+                employeeFilter: me.filter.employeeFilter
             });
-            this.getEmployee();
+            me.getEmployee();
         },
 
         /**
@@ -71,12 +73,13 @@ export default {
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         selectPrevPage(){
-            this.setFilter({
-                pageSize: this.filter.pageSize,
-                pageNumber: this.filter.pageNumber - 1,
-                employeeFilter: this.filter.employeeFilter
+            const me = this;
+            me.setFilter({
+                pageSize: me.filter.pageSize,
+                pageNumber: me.filter.pageNumber - 1,
+                employeeFilter: me.filter.employeeFilter
             });
-            this.getEmployee();
+            me.getEmployee();
         },
 
         /**
@@ -84,26 +87,14 @@ export default {
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         selectNextPage(){
-            this.setFilter({
-                pageSize: this.filter.pageSize,
-                pageNumber: this.filter.pageNumber + 1,
-                employeeFilter: this.filter.employeeFilter
+            const me = this;
+            me.setFilter({
+                pageSize: me.filter.pageSize,
+                pageNumber: me.filter.pageNumber + 1,
+                employeeFilter: me.filter.employeeFilter
             });
-            this.getEmployee();
+            me.getEmployee();
         },
-
-        /**
-         * Ẩn/hiện combobox
-         * Author: Vũ Tùng Lâm (30/10/2022)
-         */
-        toggleList(){
-            this.isShowList=!this.isShowList;
-        },
-    },
-    data() {
-        return {
-            isShowList: false,
-        }
     },
 }
 </script>

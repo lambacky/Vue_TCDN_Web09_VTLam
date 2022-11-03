@@ -3,7 +3,7 @@
         <div class="dialog dialog-add-emp">
             <div class="dialog-header">
                 <div class="dialog-header-left">
-                    <div id="formTitle" class="dialog-title"></div>
+                    <div id="formTitle" class="dialog-title">{{dialogTitle}}</div>
                     <div class="input-checkbox-wrapper">
                         <input class="input-checkbox" type="checkbox">
                         <label class="input-checkbox-label">Là khách hàng</label>
@@ -32,12 +32,12 @@
                                 <input v-model="employee.EmployeeName" id="employeeName" type="text" required class="required input" name="EmployeeName" tabindex="2">
                                 <span class="input-error-mess">&lt;Tên&gt; không được để trống</span>
                             </div>
+                            <!-- <BaseInput :inputLabel="'Tên'" :inputWidth="'flex-1'" :validateType="'required'" v-model="employee.EmployeeName" :errorMess="errorRequired" tabindex="2" /> -->
                         </div>
-                        
+                        <input v-model="employee.DepartmentId" id="departmentId" type="hidden" name="DepartmentId">
                         <div class="input-wrapper" style="overflow:visible">
                             <label class="input-label">Đơn vị <span class="require-mark">*</span></label>
                             <div class="combobox">
-                                <input v-model="employee.DepartmentId" id="departmentId" type="hidden" name="DepartmentId">
                                 <input v-model="employee.DepartmentName" id="departmentName" required class=" required input combobox-input" type="text" name="DepartmentName" readonly tabindex="7">
                                 <span class="input-error-mess">&lt;Đơn vị&gt; không được để trống</span>
                                 <div class="combobox-button" @click="toggleList">
@@ -47,6 +47,7 @@
                                     <div v-for="(dep,index) in departments" :key="index" class="data-item department-item" :class="{ 'checked': dep.DepartmentName == employee.DepartmentName }" @click="selectDepartment(dep)">{{dep.DepartmentName}}</div>
                                 </div>
                             </div>
+                            
                         </div>
                         <div class="input-wrapper">
                             <label class="input-label">Chức danh</label>
@@ -57,7 +58,7 @@
                         <div class="row-flex">
                             <div class="input-wrapper w-40">
                                 <label class="input-label">Ngày sinh</label>
-                                <input ref="DateOfBirth" :value="employee.DateOfBirth? employee.DateOfBirth.split('T')[0] : null" @input="selectDate" id="dateOfBirth" type="date" class="input input-date" name="DateOfBirth" tabindex="3">
+                                <input ref="DateOfBirth" v-model="employee.DateOfBirth" id="dateOfBirth" type="date" class="input input-date" name="DateOfBirth" tabindex="3">
                                 <span class="input-error-mess">&lt;Ngày sinh&gt; không được lớn hơn hiện tại</span>
                             </div>
                             <div class="input-wrapper flex-1">
@@ -85,7 +86,7 @@
                             </div>
                             <div class="input-wrapper flex-1">
                                 <span class="input-label">Ngày cấp</span>
-                                <input ref="IdentityDate" :value="employee.IndentiyDate? employee.IdentityDate.split('T')[0] :null" @input="selectDate" id="identityDate" type="date" class="input input-date" name="IdentityDate" tabindex="9">
+                                <input ref="IdentityDate" v-model="employee.IdentityDate" id="identityDate" type="date" class="input input-date" name="IdentityDate" tabindex="9">
                                 <span class="input-error-mess">&lt;Ngày cấp&gt; không được lớn hơn hiện tại</span>
                             </div>
                         </div>
@@ -135,10 +136,11 @@
                 </div>
             </form>
             <div class="dialog-footer">
-                <button  class="btn btn-secondary btn-close" tabindex="21" @click="toggleDialog">Hủy</button>
+                <BaseButton :btnText="'Hủy'" :isSecondary="true" @click="toggleDialog" tabindex="21"/>
                 <div class="btn-action">
-                    <button ref="btnSave" @click="saveData" id="btnSave" class="btn btn-secondary btn-store" tabindex="20">Cất</button>
-                    <button @click="saveAddData" id="btnSaveAdd" class="btn btn-store-add" tabindex="19">Cất và thêm</button>
+                    <BaseButton :btnText="'Cất'" :isSecondary="true" @click="saveData" tabindex="20"/>
+                    <BaseButton :btnText="'Cất và thêm'" @click="saveAddData" tabindex="19"/>
+
                 </div>
             </div>
         </div>
@@ -149,9 +151,11 @@
 import { mapActions, mapState } from "vuex"
 import FormMode from "../../enums/formMode.js"
 import AlertAction from "../../enums/alertAction.js"
-
+import BaseButton from "../../components/base/BaseButton.vue"
+// import BaseInput from "../../components/base/BaseInput.vue"
 export default {
     name:"EmployeeDialog",
+    components:{BaseButton},
     computed: mapState({
         isShowDialog: (state) => state.employee.isShowDialog,
         formMode: (state) => state.employee.formMode,
@@ -159,11 +163,13 @@ export default {
         singleEmployee : (state) => state.employee.singleEmployee,
         departments: (state) => state.department.departments,
         alert: (state) => state.employee.alert,
+        dialogTitle: (state) => state.employee.dialogTitle
     }),
     created() {
+        const me=this;
         //lấy mã nhân viên mới
-        if(this.formMode == FormMode.STORE){
-            this.setNewEmployeeCode();
+        if(me.formMode == FormMode.STORE){
+            me.setNewEmployeeCode();
         }
         
     },
@@ -189,27 +195,44 @@ export default {
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         saveData(){
-            if(this.formMode==FormMode.STORE_AND_ADD){
-                this.changeFormMode(FormMode.STORE);
+            const me=this;
+            if(me.formMode==FormMode.STORE_AND_ADD){
+                me.changeFormMode(FormMode.STORE);
             }
-            if(this.formMode==FormMode.EDIT_AND_ADD){
-                this.changeFormMode(FormMode.EDIT);
+            if(me.formMode==FormMode.EDIT_AND_ADD){
+                me.changeFormMode(FormMode.EDIT);
             }
-            this.storeEmployee();
+            me.storeEmployee();
         },
+
+        // saveData(){
+        //     const me=this;
+        //     if(!me.employee.EmployeeName){
+        //         me.errorRequired = 'required';
+        //         me.setAlert({
+        //             type:"danger",
+        //             message: me.errorRequired,
+        //         });
+                
+        //     }else{
+        //         me.errorRequired = null;
+        //         console.log(me.employee.EmployeeName);
+        //     }
+        // },
 
         /**
          * chọn nút cất và thêm
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         saveAddData(){
-            if(this.formMode==FormMode.STORE){
-                this.changeFormMode(FormMode.STORE_AND_ADD);
+            const me=this;
+            if(me.formMode==FormMode.STORE){
+                me.changeFormMode(FormMode.STORE_AND_ADD);
             }
-            if(this.formMode==FormMode.EDIT){
-                this.changeFormMode(FormMode.EDIT_AND_ADD);
+            if(me.formMode==FormMode.EDIT){
+                me.changeFormMode(FormMode.EDIT_AND_ADD);
             }
-            this.storeEmployee();
+            me.storeEmployee();
         },
 
         /**
@@ -217,17 +240,18 @@ export default {
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         storeEmployee(){
+            const me=this;
             //validate dữ liệu
-            let isValid = this.validateData();
-            this.employee.Gender = parseInt(document.querySelector('input[name="Gender"]:checked').value);
+            let isValid = me.validateData();
+            me.employee.Gender = parseInt(document.querySelector('input[name="Gender"]:checked').value);
             
             if (isValid) {
-                if (this.formMode == FormMode.STORE ||this.formMode == FormMode.STORE_AND_ADD) {
+                if (me.formMode == FormMode.STORE ||me.formMode == FormMode.STORE_AND_ADD) {
                     //thêm nhân viên
-                    this.addEmployee();
-                } else if (this.formMode == FormMode.EDIT ||this.formMode == FormMode.EDIt_AND_ADD) {
+                    me.addEmployee();
+                } else if (me.formMode == FormMode.EDIT ||me.formMode == FormMode.EDIt_AND_ADD) {
                     //sửa nhân viên
-                    this.editEmployee();
+                    me.editEmployee();
                 }
             }
         },
@@ -237,6 +261,7 @@ export default {
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         validateData(){
+            const me=this;
             var isValid = true;
             var inputValidates = [];
             // check các input bắt buộc
@@ -298,7 +323,7 @@ export default {
             for(const input of inputValidates){
                 let errorMess = input.nextElementSibling;
                 if (errorMess.style.display=="block"){
-                    this.setAlert({
+                    me.setAlert({
                         type:"danger",
                         message: errorMess.textContent,
                     });
@@ -309,28 +334,15 @@ export default {
         },
 
         /**
-         * input chọn ngày tháng
-         * @param {*} event
-         * Author: Vũ Tùng Lâm (30/10/2022)
-         */
-        selectDate(event){
-            if(event.target.value){
-                this.employee[event.target.name] = new Date(event.target.value).toISOString();
-            }
-            else {
-                this.employee[event.target.name] = null;
-            }
-        },
-
-        /**
          * combobox chọn phòng ban
          * @param {*} dep
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         selectDepartment(dep){
-            this.toggleList();
-            this.employee.DepartmentId = dep.DepartmentId;
-            this.employee.DepartmentName = dep.DepartmentName;
+            const me=this;
+            me.toggleList();
+            me.employee.DepartmentId = dep.DepartmentId;
+            me.employee.DepartmentName = dep.DepartmentName;
         },
 
         /**
@@ -338,7 +350,8 @@ export default {
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         toggleList(){
-            this.isShowList=!this.isShowList;
+            const me=this;
+            me.isShowList=!me.isShowList;
         },
 
         /**
@@ -347,30 +360,33 @@ export default {
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         escDialog() {
+            const me=this;
             // Check dữ liệu trên form đã thay đổi
-            if (JSON.stringify(this.employee) !== JSON.stringify(this.singleEmployee)) {
-                this.setAlert({
+            if (JSON.stringify(me.employee) !== JSON.stringify(me.singleEmployee)) {
+                me.setAlert({
                     type: "question",
                     message: "Dữ liệu đã thay đổi. Bạn có muốn cất không?",
                     action: AlertAction.CONFIRM_STORE,
                 });
             } else {
-                this.toggleDialog();
+                me.toggleDialog();
             }
         },
         
     },
     watch: {
         isStore(newState) {
+            const me=this;
             if (newState == true) {
-                this.$refs.btnSave.click();
-                this.$emit("isStoreDone");
+                me.saveData();
+                me.$emit("isStoreDone");
             }
         },
     },
     data() {
         return {
             isShowList: false,
+            errorRequired:null
         }
     },
 }

@@ -2,7 +2,7 @@
     <div class="main-content">
         <div class="content-header">
             <div class="content-title">Nhân viên</div>
-            <button id="btnAddEmployee" class="btn btn-add-emp" @click="openForm">Thêm mới nhân viên</button>
+            <BaseButton :btnText="'Thêm mới nhân viên'" @click="openForm" />
         </div>
         
         <div class="content-body">
@@ -43,19 +43,22 @@ import EmployeeDialog from './EmployeeDialog.vue'
 import EmployeeTable from './EmployeeTable.vue'
 import EmployeePaging from './EmployeePaging.vue'
 import EmployeeAlert from './EmployeeAlert.vue'
+import BaseButton from '../../components/base/BaseButton.vue'
 export default {
     name:"EmployeeList",
-    components:{EmployeeTable, EmployeePaging, EmployeeDialog, EmployeeAlert},
+    components:{EmployeeTable, EmployeePaging, EmployeeDialog, EmployeeAlert,BaseButton},
     props:[],
     computed: mapState({
         isShowDialog: (state) => state.employee.isShowDialog,
         isShowAlert: (state) => state.employee.isShowAlert,
         filter: (state) => state.employee.filter,
+        dialogTitle: (state) => state.employee.dialogTitle
     }),
     created() {
+        const me = this;
         //load dữ liệu nhân viên và phòng ban
-        this.getEmployee();
-        this.getDepartment();
+        me.getEmployee();
+        me.getDepartment();
     },
     methods:{
         ...mapActions([
@@ -65,6 +68,7 @@ export default {
             "getDepartment",
             "selectEmployee",
             "setFilter",
+            "setDialogTitle"
         ]),
         
         /**
@@ -72,9 +76,11 @@ export default {
          * Author:Vũ Tùng Lâm (30/10/2022)
          */
         openForm(){
-            this.selectEmployee({ Gender: Gender.MALE });
-            this.changeFormMode(FormMode.STORE);
-            this.toggleDialog();            
+            const me = this;
+            me.setDialogTitle("Thêm khách hàng");
+            me.selectEmployee({ Gender: Gender.MALE });
+            me.changeFormMode(FormMode.STORE);
+            me.toggleDialog();            
         },
 
         /**
@@ -82,12 +88,13 @@ export default {
          * Author:Vũ Tùng Lâm (30/10/2022)
          */
         searchEmployee(){
-            this.setFilter({
-                pageSize: this.filter.pageSize,
+            const me = this;
+            me.setFilter({
+                pageSize: me.filter.pageSize,
                 pageNumber: 1,
-                employeeFilter: this.$refs.inputSearch.value
+                employeeFilter: me.$refs.inputSearch.value
             });
-            this.getEmployee();
+            me.getEmployee();
         },
 
         /**
@@ -95,13 +102,14 @@ export default {
          * Author:Vũ Tùng Lâm (30/10/2022)
          */
         refreshTable(){
-            this.$refs.inputSearch.value="";
-            this.setFilter({
-                pageSize: this.filter.pageSize,
+            const me = this;
+            me.$refs.inputSearch.value="";
+            me.setFilter({
+                pageSize: me.filter.pageSize,
                 pageNumber: 1,
                 employeeFilter: ""
             });
-            this.getEmployee();
+            me.getEmployee();
         }
     },
     data() {

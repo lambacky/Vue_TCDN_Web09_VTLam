@@ -4,6 +4,7 @@ import axios from "axios";
 import AlertAction from "@/enums/alertAction";
 
 const state = {
+    dialogTitle: "Thêm khách hàng",
     isShowLoading:true,
     isShowDialog: false,
     isShowAlert: false,
@@ -26,6 +27,9 @@ const state = {
 }
 
 const mutations = {
+    setDialogTitle(state,payload){
+        state.dialogTitle = payload;
+    },
     changeFormMode(state, payload) {
         state.formMode = payload;
     },
@@ -40,6 +44,15 @@ const mutations = {
     },
     getEmployee(state, payload){
         state.employees = payload.Data;
+        for (const emp of state.employees){
+            if(emp.DateOfBirth){
+                emp.DateOfBirth=emp.DateOfBirth.split('T')[0];
+            }
+            if(emp.IdentityDate){
+                emp.IdentityDate=emp.IdentityDate.split('T')[0];
+            }
+        }
+        
         state.totalEmployee = payload.TotalRecord;
         state.totalPage = payload.TotalPage;
     },
@@ -62,6 +75,14 @@ const mutations = {
 }
 
 const actions = {
+    /**
+     * Đặt tiêu đề cho form nhân viên
+     * @param {*} context 
+     * @param {*} title 
+     */
+    setDialogTitle(context,title){
+        context.commit("setDialogTitle", title);
+    },
     /**
      * đổi chế độ của form
      * @param {*} context 
@@ -173,7 +194,7 @@ const actions = {
             });
         
             // Check mode
-            if (state.formMode === FormMode.STORE) {
+            if (state.formMode == FormMode.STORE) {
                 // Cất
                 context.dispatch("toggleDialog");
             } else {
@@ -209,11 +230,12 @@ const actions = {
             });
         
             // Check mode
-            if (state.formMode === FormMode.EDIT) {
+            if (state.formMode == FormMode.EDIT) {
                 // Cất
                 context.dispatch("toggleDialog");
             } else {
                 // Cất và thêm
+                context.dispatch("setDialogTitle","Thêm khách hàng");
                 context.dispatch("changeFormMode", FormMode.STORE);
                 context.dispatch("selectEmployee", { Gender: Gender.MALE });
                 context.dispatch("setNewEmployeeCode");
@@ -268,7 +290,6 @@ const actions = {
     },
 
 }
-
 /**
  * Xử lí lỗi
  * @param {*} error 

@@ -12,8 +12,8 @@
             </div>
 
             <div v-if="alert.type=='warning'" class="dialog-footer alert-warning-delete-footer">
-                <button @click="toggleAlert" class="btn btn-secondary btn-close" tabindex="2">Không</button>
-                <button @click="confirmDelete" class="btn btn-confirm" tabindex="1">Có</button>
+                <BaseButton :btnText="'Không'" :isSecondary="true" @click="toggleAlert" tabindex="2" />
+                <BaseButton :btnText="'Có'" @click="confirmDelete" tabindex="1" />
             </div>
 
             <div v-if="alert.type=='danger'||alert.type=='success'" class="dialog-footer alert-danger-footer">
@@ -21,10 +21,10 @@
             </div>
 
             <div v-if="alert.type=='question'" class="dialog-footer alert-question-footer">
-                <button @click="toggleAlert" class="btn btn-secondary btn-close" tabindex="3">Hủy</button>
+                <BaseButton :btnText="'Hủy'" :isSecondary="true" @click="toggleAlert" tabindex="3" />
                 <div class="btn-action">
-                    <button @click="closeAll" class="btn btn-secondary btn-deny" tabindex="2">Không</button>
-                    <button @click="confirmStore" class="btn btn-confirm" tabindex="1">Có</button>
+                    <BaseButton :btnText="'Không'" :isSecondary="true" @click="closeAll" tabindex="2" />
+                    <BaseButton :btnText="'Có'" @click="confirmStore" tabindex="1" />
                 </div>
             </div>
 
@@ -34,8 +34,10 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
+import BaseButton from '../../components/base/BaseButton.vue'
 export default {
     name:"EmployeeAlert",
+    components:{BaseButton},
     computed: mapState({
         alert: (state) => state.employee.alert,
         singleEmployee: (state) => state.employee.singleEmployee,
@@ -54,8 +56,9 @@ export default {
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         confirmStore(){
-            this.toggleAlert();
-            this.$emit("setIsStore");
+            const me = this;
+            me.toggleAlert();
+            me.$emit("setIsStore");
         },
 
         /**
@@ -63,8 +66,9 @@ export default {
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         confirmDelete(){
-            this.toggleAlert();
-            this.deleteEmployee(this.singleEmployee.EmployeeId);
+            const me = this;
+            me.toggleAlert();
+            me.deleteEmployee(me.singleEmployee.EmployeeId);
         },
 
         /**
@@ -72,8 +76,9 @@ export default {
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         closeAll(){
-            this.toggleAlert();
-            this.toggleDialog();
+            const me = this;
+            me.toggleAlert();
+            me.toggleDialog();
         }
     },
 }

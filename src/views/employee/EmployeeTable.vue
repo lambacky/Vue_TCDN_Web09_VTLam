@@ -72,6 +72,7 @@ export default {
             "getEmployee",
             "selectEmployee",
             "setAlert",
+            "setDialogTitle",
 
         ]),
 
@@ -103,9 +104,11 @@ export default {
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         modifyForm(emp){
-            this.changeFormMode(FormMode.EDIT);
-            this.selectEmployee(emp);
-            this.toggleDialog();
+            const me = this;
+            me.setDialogTitle("Sửa khách hàng");
+            me.changeFormMode(FormMode.EDIT);
+            me.selectEmployee(emp);
+            me.toggleDialog();
         },
 
         /**
@@ -114,10 +117,11 @@ export default {
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         selectDelete(emp){
-            this.selectEmployee(emp);
-            this.setAlert({
+            const me = this;
+            me.selectEmployee(emp);
+            me.setAlert({
                 type:"warning",
-                message: `Bạn có thực sự muốn xóa Nhân viên <${this.singleEmployee.EmployeeCode}> không?`,
+                message: `Bạn có thực sự muốn xóa Nhân viên <${me.singleEmployee.EmployeeCode}> không?`,
                 action: AlertAction.CONFIRM_DELETE
             });
 
