@@ -2,18 +2,17 @@
     <div class="main-content">
         <div class="content-header">
             <div class="content-title">Nhân viên</div>
-            <BaseButton :btnText="'Thêm mới nhân viên'" @click="openForm" />
+            <BaseButton :btnText="'Thêm mới nhân viên'" @click="openForm"/>
         </div>
         
         <div class="content-body">
             <div class="toolbar">
                 <div class="toolbar-left">
-                    <button id="btnDelete" class="btn btn-delete" disabled>Xóa</button>
+                    <BaseButton :btnText="'Xóa'" :isDisabled="checkedEmployeeIds.length==0" @click="deleteBatch"/>
                 </div>
                 <div class="toolbar-right">
                     <div class="search-area">
-                        <input @keyup="searchEmployee" ref="inputSearch" id="inputSearch" type="text" class="input input-search search-emp" placeholder="Tìm theo mã, tên nhân viên" />
-                        <div class="icon icon-search"></div>
+                        <BaseInput @keyup="searchEmployee" v-model="filter.employeeFilter" :placeHolder="'Tìm theo mã, tên nhân viên'" :icon="'icon-search'"/>
                     </div>
                     <button @click="refreshTable" id="btnRefresh" class="icon btn-refresh icon-refresh"></button>
                 </div>
@@ -38,25 +37,29 @@
 
 import  FormMode  from "../../enums/formMode.js"
 import Gender from "../../enums/gender.js"
+import AlertAction from "../../enums/alertAction.js"
 import { mapActions, mapState } from "vuex"
 import EmployeeDialog from './EmployeeDialog.vue'
 import EmployeeTable from './EmployeeTable.vue'
 import EmployeePaging from './EmployeePaging.vue'
 import EmployeeAlert from './EmployeeAlert.vue'
 import BaseButton from '../../components/base/BaseButton.vue'
+import BaseInput from '../../components/base/BaseInput.vue'
 export default {
     name:"EmployeeList",
-    components:{EmployeeTable, EmployeePaging, EmployeeDialog, EmployeeAlert,BaseButton},
+    components:{EmployeeTable, EmployeePaging, EmployeeDialog, EmployeeAlert,BaseButton,BaseInput},
     props:[],
     computed: mapState({
         isShowDialog: (state) => state.employee.isShowDialog,
         isShowAlert: (state) => state.employee.isShowAlert,
         filter: (state) => state.employee.filter,
-        dialogTitle: (state) => state.employee.dialogTitle
+        dialogTitle: (state) => state.employee.dialogTitle,
+        checkedEmployeeIds: (state) => state.employee.checkedEmployeeIds,
     }),
     created() {
         const me = this;
         //load dữ liệu nhân viên và phòng ban
+        me.toggleLoading();
         me.getEmployee();
         me.getDepartment();
     },
@@ -64,11 +67,13 @@ export default {
         ...mapActions([
             "changeFormMode",
             "toggleDialog",
+            "toggleLoading",
             "getEmployee",
             "getDepartment",
             "selectEmployee",
             "setFilter",
-            "setDialogTitle"
+            "setDialogTitle",
+            "setAlert"
         ]),
         
         /**
@@ -92,7 +97,7 @@ export default {
             me.setFilter({
                 pageSize: me.filter.pageSize,
                 pageNumber: 1,
-                employeeFilter: me.$refs.inputSearch.value
+                employeeFilter: me.filter.employeeFilter
             });
             me.getEmployee();
         },
@@ -103,13 +108,25 @@ export default {
          */
         refreshTable(){
             const me = this;
-            me.$refs.inputSearch.value="";
             me.setFilter({
                 pageSize: me.filter.pageSize,
                 pageNumber: 1,
                 employeeFilter: ""
             });
             me.getEmployee();
+        },
+
+        /**
+         * Xóa hàng loạt
+         * Author:Vũ Tùng Lâm (30/10/2022)
+         */
+        deleteBatch(){
+            const me=this;
+            me.setAlert({
+                type:"warning",
+                message: `Bạn có thực sự muốn xóa những nhân viên này không?`,
+                action: AlertAction.CONFIRM_DELETE_BATCH
+            });
         }
     },
     data() {

@@ -5,11 +5,11 @@
                 <div class="dialog-header-left">
                     <div id="formTitle" class="dialog-title">{{dialogTitle}}</div>
                     <div class="input-checkbox-wrapper">
-                        <input class="input-checkbox" type="checkbox">
+                        <input ref="First" tabindex="1"  class="input-checkbox" type="checkbox">
                         <label class="input-checkbox-label">Là khách hàng</label>
                     </div>
                     <div class="input-checkbox-wrapper">
-                        <input class="input-checkbox" type="checkbox">
+                        <input ref="Last" tabindex="21"  class="input-checkbox" type="checkbox">
                         <label class="input-checkbox-label">Là nhà cung cấp</label>
                     </div>
                 </div>
@@ -22,124 +22,66 @@
                 <div class="dialog-body-top">
                     <div class="dialog-body-left w-50">
                         <div class="row-flex">
-                            <div class="input-wrapper w-40" >
-                                <label class="input-label">Mã <span class="require-mark">*</span></label>
-                                <input ref="EmployeeCode" v-model="employee.EmployeeCode" id="employeeCode" type="text" required class="required input" name="EmployeeCode" tabindex="1">
-                                <span class="input-error-mess">&lt;Mã&gt; không được để trống</span>
-                            </div>
-                            <div class="input-wrapper flex-1">
-                                <label class="input-label">Tên <span class="require-mark">*</span></label>
-                                <input v-model="employee.EmployeeName" id="employeeName" type="text" required class="required input" name="EmployeeName" tabindex="2">
-                                <span class="input-error-mess">&lt;Tên&gt; không được để trống</span>
-                            </div>
-                            <!-- <BaseInput :inputLabel="'Tên'" :inputWidth="'flex-1'" :validateType="'required'" v-model="employee.EmployeeName" :errorMess="errorRequired" tabindex="2" /> -->
+                            <BaseInput @keydown="focusLast" ref="EmployeeCode" :inputLabel="'Mã'" :inputWidth="'w-40'" :validateType="'required'" v-model="employee.EmployeeCode" :errorMess="errors.EmployeeCode" :tabIndex="2" />
+                            <BaseInput :inputLabel="'Tên'" :inputWidth="'flex-1'" :validateType="'required'" v-model="employee.EmployeeName" :errorMess="errors.EmployeeName" :tabIndex="3"  />
                         </div>
-                        <input v-model="employee.DepartmentId" id="departmentId" type="hidden" name="DepartmentId">
                         <div class="input-wrapper" style="overflow:visible">
                             <label class="input-label">Đơn vị <span class="require-mark">*</span></label>
-                            <div class="combobox">
-                                <input v-model="employee.DepartmentName" id="departmentName" required class=" required input combobox-input" type="text" name="DepartmentName" readonly tabindex="7">
-                                <span class="input-error-mess">&lt;Đơn vị&gt; không được để trống</span>
-                                <div class="combobox-button" @click="toggleList">
-                                    <div class="icon icon-arrow-dropdown"></div>
-                                </div>
-                                <div v-if="isShowList" id="departmentList" class="combobox-data department-list">
-                                    <div v-for="(dep,index) in departments" :key="index" class="data-item department-item" :class="{ 'checked': dep.DepartmentName == employee.DepartmentName }" @click="selectDepartment(dep)">{{dep.DepartmentName}}</div>
-                                </div>
-                            </div>
-                            
+                            <BaseCombobox :errorMess="errors.DepartmentName" :dataList="departments.map(dep => dep.DepartmentName)" :className="'department-list'" 
+                                            :selectedItem="employee.DepartmentName" @selectAction="selectDepartment" :tabIndex="6"/>
                         </div>
-                        <div class="input-wrapper">
-                            <label class="input-label">Chức danh</label>
-                            <input v-model="employee.EmployeePosition" id="employeePosition" type="text" class="input" name="EmployeePosition" tabindex="10">
-                        </div>
+                        <BaseInput :inputLabel="'Chức danh'" v-model="employee.EmployeePosition" :errorMess="errors.EmployeePosition" :tabIndex="9" />
                     </div>
                     <div class="dialog-body-right w-50">
                         <div class="row-flex">
-                            <div class="input-wrapper w-40">
-                                <label class="input-label">Ngày sinh</label>
-                                <input ref="DateOfBirth" v-model="employee.DateOfBirth" id="dateOfBirth" type="date" class="input input-date" name="DateOfBirth" tabindex="3">
-                                <span class="input-error-mess">&lt;Ngày sinh&gt; không được lớn hơn hiện tại</span>
-                            </div>
+                            <BaseInput :inputLabel="'Ngày sinh'" :inputType="'date'" :inputWidth="'w-40'" v-model="employee.DateOfBirth" :errorMess="errors.DateOfBirth" :tabIndex="4" />
                             <div class="input-wrapper flex-1">
                                 <label class="input-label">Giới tính</label>
                                 <div class="input-checkbox-list gender-list">
                                     <div class="input-checkbox-wrapper">
-                                        <input class="input-checkbox" type="radio" value="1" name="Gender" :checked="employee.Gender === 1" tabindex="4">
+                                        <input class="input-checkbox" type="radio" value="0" name="Gender" :checked="employee.Gender === 0" tabindex="5" @change="(e)=>(employee.Gender = parseInt(e.target.value))">
                                         <label class="input-label">Nam</label>
                                     </div>
                                     <div class="input-checkbox-wrapper">
-                                        <input class="input-checkbox" type="radio" value="0" name="Gender" :checked="employee.Gender === 0" tabindex="5">
+                                        <input class="input-checkbox" type="radio" value="1" name="Gender" :checked="employee.Gender === 1" tabindex="5" @change="(e)=>(employee.Gender = parseInt(e.target.value))">
                                         <label class="input-label">Nữ</label>
                                     </div>
                                     <div class="input-checkbox-wrapper">
-                                        <input class="input-checkbox" type="radio" value="2" name="Gender" :checked="employee.Gender === 2" tabindex="6">
+                                        <input class="input-checkbox" type="radio" value="2" name="Gender" :checked="employee.Gender === 2" tabindex="5" @change="(e)=>(employee.Gender = parseInt(e.target.value))">
                                         <label class="input-label">Khác</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="row-flex">
-                            <div class="input-wrapper w-60">
-                                <label class="input-label" title="Số chứng minh nhân dân">Số CMND</label>
-                                <input v-model="employee.IdentityNumber" id="indentityNumber" type="text" class="input" name="IdentityNumber" tabindex="8">
-                            </div>
-                            <div class="input-wrapper flex-1">
-                                <span class="input-label">Ngày cấp</span>
-                                <input ref="IdentityDate" v-model="employee.IdentityDate" id="identityDate" type="date" class="input input-date" name="IdentityDate" tabindex="9">
-                                <span class="input-error-mess">&lt;Ngày cấp&gt; không được lớn hơn hiện tại</span>
-                            </div>
+                            <BaseInput :inputLabel="'Số CMND'" :inputWidth="'w-60'" v-model="employee.IdentityNumber" :errorMess="errors.IdentityNumber" :tabIndex="7" />
+                            <BaseInput :inputLabel="'Ngày cấp'" :inputType="'date'" :inputWidth="'flex-1'" v-model="employee.IdentityDate" :errorMess="errors.IdentityDate" :tabIndex="8" />
                         </div>
-                        <div class="input-wrapper">
-                            <span class="input-label">Nơi cấp</span>
-                            <input v-model="employee.IdentityPlace" id="identityPlace" type="text" class="input" name="IdentityPlace" tabindex="11">
-                        </div>
+                        <BaseInput :inputLabel="'Nơi cấp'" v-model="employee.IdentityPlace" :errorMess="errors.IdentityPlace" :tabIndex="10" />
                 </div>
                 
                 </div>
                 <div class="dialog-body-bottom">
-                    <div class="input-wrapper" >
-                        <label class="input-label">Địa chỉ</label>
-                        <input v-model="employee.Address" id="address" type="text" class="input" name="Address" tabindex="12">
-                    </div>
+                    <BaseInput :inputLabel="'Địa chỉ'" v-model="employee.Address" :errorMess="errors.Address" :tabIndex="11" />
                     <div class="row-flex">
-                        <div class="input-wrapper w-25" >
-                            <label class="input-label" title="điện thoại di động">ĐT di động</label>
-                            <input v-model="employee.TelephoneNumber" id="telephoneNumber" type="text" class="input" name="TelephoneNumber" tabindex="13">
-                        </div>
-                        <div class="input-wrapper w-25" >
-                            <label class="input-label" title="điện thoại cố định">ĐT cố định</label>
-                            <input v-model="employee.PhoneNumber" id="phoneNumber" type="text" class="input" name="PhoneNumber" tabindex="14">
-                        </div>
-                        <div class="input-wrapper w-25" >
-                            <label class="input-label">Email</label>
-                            <input v-model="employee.Email" id="email" type="text" class="input" name="Email" tabindex="15">
-                            <span class="input-error-mess">&lt;Email&gt; không đúng định dạng</span>
-                        </div>
+                        <BaseInput :inputLabel="'ĐT di động'" :inputWidth="'w-25'" v-model="employee.TelephoneNumber" :errorMess="errors.TelephoneNumber" :tabIndex="12" />
+                        <BaseInput :inputLabel="'ĐT cố định'" :inputWidth="'w-25'" v-model="employee.PhoneNumber" :errorMess="errors.PhoneNumber" :tabIndex="13" />
+                        <BaseInput :inputLabel="'Email'" :inputWidth="'w-25'" v-model="employee.Email" :errorMess="errors.Email" :tabIndex="14" />
                         <div class="w-25"></div>
                     </div>
                     <div class="row-flex">
-                        <div class="input-wrapper w-25" >
-                            <label class="input-label">Tài khoản ngân hàng</label>
-                            <input v-model="employee.BankAccountNumber" id="bankAccountNumber" type="text" class="input" name="BankAccountNumber" tabindex="16">
-                        </div>
-                        <div class="input-wrapper w-25" >
-                            <label class="input-label">Tên ngân hàng</label>
-                            <input v-model="employee.BankName" id="bankName" type="text" class="input" name="BankName" tabindex="17">
-                        </div>
-                        <div class="input-wrapper w-25" >
-                            <label class="input-label">Chi nhánh</label>
-                            <input v-model="employee.BankBranchName" id="bankBranchName" type="text" class="input" name="BankBranchName" tabindex="18">
-                        </div>
+                        <BaseInput :inputLabel="'Tài khoản ngân hàng'" :inputWidth="'w-25'" v-model="employee.BankAccountNumber" :errorMess="errors.BankAccountNumber" :tabIndex="15" />
+                        <BaseInput :inputLabel="'Tên ngân hàng'" :inputWidth="'w-25'" v-model="employee.BankName" :errorMess="errors.BankName" :tabIndex="16" />
+                        <BaseInput :inputLabel="'Chi nhánh'" :inputWidth="'w-25'" v-model="employee.BankBranchName" :errorMess="errors.BankBranchName" :tabIndex="17" />
                         <div class="w-25"></div>
                     </div>
                 </div>
             </form>
             <div class="dialog-footer">
-                <BaseButton :btnText="'Hủy'" :isSecondary="true" @click="toggleDialog" tabindex="21"/>
+                <BaseButton :btnText="'Hủy'" :isSecondary="true" @click="toggleDialog" @keydown="focusFirst" :tabIndex="20"/>
                 <div class="btn-action">
-                    <BaseButton :btnText="'Cất'" :isSecondary="true" @click="saveData" tabindex="20"/>
-                    <BaseButton :btnText="'Cất và thêm'" @click="saveAddData" tabindex="19"/>
+                    <BaseButton :btnText="'Cất'" :isSecondary="true" @click="saveData" :tabIndex="19"/>
+                    <BaseButton :btnText="'Cất và thêm'" @click="saveAddData" :tabIndex="18"/>
 
                 </div>
             </div>
@@ -152,10 +94,12 @@ import { mapActions, mapState } from "vuex"
 import FormMode from "../../enums/formMode.js"
 import AlertAction from "../../enums/alertAction.js"
 import BaseButton from "../../components/base/BaseButton.vue"
-// import BaseInput from "../../components/base/BaseInput.vue"
+import BaseCombobox from "../../components/base/BaseCombobox.vue"
+import BaseInput from "../../components/base/BaseInput.vue"
+
 export default {
     name:"EmployeeDialog",
-    components:{BaseButton},
+    components:{BaseButton,BaseInput,BaseCombobox},
     computed: mapState({
         isShowDialog: (state) => state.employee.isShowDialog,
         formMode: (state) => state.employee.formMode,
@@ -175,7 +119,7 @@ export default {
     },
     mounted(){
         //focus vào input mã nhân viên
-        this.$refs.EmployeeCode.focus();
+        this.$refs.EmployeeCode.$el.querySelector("input").focus();
     },
     props: ["isStore"],
     emits: ["isStoreDone"],
@@ -189,7 +133,7 @@ export default {
             "addEmployee",
             "editEmployee",
         ]),
-
+        
         /**
          * chọn nút cất
          * Author: Vũ Tùng Lâm (30/10/2022)
@@ -204,21 +148,6 @@ export default {
             }
             me.storeEmployee();
         },
-
-        // saveData(){
-        //     const me=this;
-        //     if(!me.employee.EmployeeName){
-        //         me.errorRequired = 'required';
-        //         me.setAlert({
-        //             type:"danger",
-        //             message: me.errorRequired,
-        //         });
-                
-        //     }else{
-        //         me.errorRequired = null;
-        //         console.log(me.employee.EmployeeName);
-        //     }
-        // },
 
         /**
          * chọn nút cất và thêm
@@ -243,7 +172,16 @@ export default {
             const me=this;
             //validate dữ liệu
             let isValid = me.validateData();
-            me.employee.Gender = parseInt(document.querySelector('input[name="Gender"]:checked').value);
+            if(me.formMode==FormMode.STORE || me.formMode==FormMode.STORE_AND_ADD){
+                me.employee.CreatedDate = (new Date()).toISOString();
+                me.employee.ModifiedDate = (new Date()).toISOString();
+            }
+            if(me.formMode==FormMode.STORE || me.formMode==FormMode.STORE_AND_ADD){
+                me.employee.ModifiedDate = (new Date()).toISOString();
+            }
+            me.employee.CreatedBy="Vũ Tùng Lâm";
+            me.employee.ModifiedBy="Vũ Tùng Lâm";
+            // me.employee.Gender = parseInt(document.querySelector('input[name="Gender"]:checked').value);
             
             if (isValid) {
                 if (me.formMode == FormMode.STORE ||me.formMode == FormMode.STORE_AND_ADD) {
@@ -262,75 +200,68 @@ export default {
          */
         validateData(){
             const me=this;
-            var isValid = true;
-            var inputValidates = [];
-            // check các input bắt buộc
-            var inputRequireds = document.querySelectorAll('.required');
-            inputRequireds.forEach(input =>{
-                inputValidates.push(input);
-                let value = input.value;
-                let errorMess = input.nextElementSibling;
-                if(!value){
-                    input.classList.add('input-error');
-                    errorMess.style.display="block";
-                    errorMess.title = errorMess.textContent;
-                    isValid = false;
-                }
-                else{
-                    input.classList.remove('input-error');
-                    errorMess.style.display="none";
-                }
-            });
+            var isValid = false;
+            for (const prop of Object.getOwnPropertyNames(me.errors)) {
+                delete me.errors[prop];
+            }
 
-            //ngày tháng
-            var inputDates = document.querySelectorAll('.input-date');
-            var currentDate = (new Date()).toISOString().split('T')[0];
-            inputDates.forEach(input => {
-                inputValidates.push(input);
-                let value = input.value;
-                let errorMess = input.nextElementSibling;
-                if(value > currentDate){
-                    input.classList.add('input-error');
-                    errorMess.style.display="block";
-                    errorMess.title = errorMess.textContent;
-                    isValid = false;
-                }
-                else{
-                    input.classList.remove('input-error');
-                    errorMess.style.display="none";
-                }
-            });
-
-            //kiểm tra đúng định dạng(email)
-            var inputEmail = document.querySelector('#email');
-            inputValidates.push(inputEmail);
-            var mailErrorMess = inputEmail.nextElementSibling;
-            var mailValue = inputEmail.value;
-            var mailFormat = /^([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+)@([a-zA-Z0-9-]+)((\.[a-zA-Z0-9-]{2,3})+)$/;
-            if(mailValue){
-                if(!mailValue.match(mailFormat)){
-                    inputEmail.classList.add('input-error');
-                    mailErrorMess.style.display="block";
-                    mailErrorMess.title = mailErrorMess.textContent;
-                    isValid = false;
-                }
-                else{
-                    inputEmail.classList.remove('input-error');
-                    mailErrorMess.style.display="none";
+            // Mã không được để trống
+            if(!me.employee.EmployeeCode){
+                me.errors.EmployeeCode="Mã không được để trống";
+            }else{
+                if(!me.employee.EmployeeCode.match(/(NV)(\d+)/)){
+                    me.errors.EmployeeCode="Mã không đúng định dạng";
                 }
             }
-            //hiện dialog lỗi
-            for(const input of inputValidates){
-                let errorMess = input.nextElementSibling;
-                if (errorMess.style.display=="block"){
-                    me.setAlert({
-                        type:"danger",
-                        message: errorMess.textContent,
-                    });
-                    break;
+
+            // Tên không được để trống
+            if(!me.employee.EmployeeName){
+                me.errors.EmployeeName="Tên không được để trống";
+                
+            }
+
+            // Đơn vị không được để trống
+            if(!me.employee.DepartmentName){
+                me.errors.DepartmentName="Đơn vị không được để trống";
+                
+            }
+
+            // Ngày sinh không được lớn hơn hiện tại
+            if(me.employee.DateOfBirth){
+                let currentDate = (new Date()).toISOString().split('T')[0];
+                if(me.employee.DateOfBirth>currentDate){
+                    me.errors.DateOfBirth="Ngày sinh không được lớn hơn hiện tại";
+                    
                 }
             }
-            return isValid;            
+
+            // Ngày cấp không được lớn hơn hiện tại
+            if(me.employee.IdentityDate){
+                let currentDate = (new Date()).toISOString().split('T')[0];
+                if(me.employee.IdentityDate>currentDate){
+                    me.errors.IdentityDate="Ngày cấp không được lớn hơn hiện tại";
+                    
+                }
+            }
+
+            // Email không được lớn hơn hiện tại
+            if(me.employee.Email){
+                var mailFormat = /^([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+)@([a-zA-Z0-9-]+)((\.[a-zA-Z0-9-]{2,3})+)$/;
+                if(!me.employee.Email.match(mailFormat)){
+                    me.errors.Email="Email không đúng định dạng";
+                }
+            }
+
+            // Kiểm tra xem có lỗi nào không
+            if(Object.keys(me.errors).length == 0){
+                isValid=true;
+            }else{
+                me.setAlert({
+                    type:"danger",
+                    message: Object.values(me.errors)[0],
+                })
+            }
+            return isValid;           
         },
 
         /**
@@ -338,20 +269,15 @@ export default {
          * @param {*} dep
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
-        selectDepartment(dep){
+        selectDepartment(departmentName){
             const me=this;
-            me.toggleList();
-            me.employee.DepartmentId = dep.DepartmentId;
-            me.employee.DepartmentName = dep.DepartmentName;
-        },
-
-        /**
-         * Ẩn/hiện combobox
-         * Author: Vũ Tùng Lâm (30/10/2022)
-         */
-        toggleList(){
-            const me=this;
-            me.isShowList=!me.isShowList;
+            // me.employee.DepartmentId = dep.DepartmentId;
+            me.employee.DepartmentName = departmentName;
+            for(const dep of me.departments){
+                if(dep.DepartmentName==departmentName){
+                    me.employee.DepartmentId=dep.DepartmentId;
+                }
+            }
         },
 
         /**
@@ -372,6 +298,29 @@ export default {
                 me.toggleDialog();
             }
         },
+
+        /**
+         * focus từ nút cuối cùng quay về input đầu tiên
+         * @param {*} e
+         * Author: Vũ Tùng Lâm (9/11/2022)
+         */
+        focusFirst(e){
+            if(!e.shiftKey && e.which==9){
+                this.$refs.First.focus();
+            }
+            
+        },
+        /**
+         * focus từ input đầu tiên về nút cuối cùng
+         * @param {*} e
+         * Author: Vũ Tùng Lâm (9/11/2022)
+         */
+        focusLast(e){
+            if((e.shiftKey && e.which==9)){
+                this.$refs.Last.focus();
+            }
+            
+        },
         
     },
     watch: {
@@ -385,8 +334,7 @@ export default {
     },
     data() {
         return {
-            isShowList: false,
-            errorRequired:null
+            errors:{}
         }
     },
 }

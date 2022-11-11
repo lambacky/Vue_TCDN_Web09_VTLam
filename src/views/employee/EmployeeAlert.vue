@@ -13,7 +13,7 @@
 
             <div v-if="alert.type=='warning'" class="dialog-footer alert-warning-delete-footer">
                 <BaseButton :btnText="'Không'" :isSecondary="true" @click="toggleAlert" tabindex="2" />
-                <BaseButton :btnText="'Có'" @click="confirmDelete" tabindex="1" />
+                <BaseButton :btnText="'Có'" @click="confirmClick" tabindex="1" />
             </div>
 
             <div v-if="alert.type=='danger'||alert.type=='success'" class="dialog-footer alert-danger-footer">
@@ -24,7 +24,7 @@
                 <BaseButton :btnText="'Hủy'" :isSecondary="true" @click="toggleAlert" tabindex="3" />
                 <div class="btn-action">
                     <BaseButton :btnText="'Không'" :isSecondary="true" @click="closeAll" tabindex="2" />
-                    <BaseButton :btnText="'Có'" @click="confirmStore" tabindex="1" />
+                    <BaseButton :btnText="'Có'" @click="confirmClick" tabindex="1" />
                 </div>
             </div>
 
@@ -33,6 +33,7 @@
 </template>
 
 <script>
+import AlertAction from '@/enums/alertAction';
 import { mapState, mapActions } from 'vuex'
 import BaseButton from '../../components/base/BaseButton.vue'
 export default {
@@ -40,35 +41,33 @@ export default {
     components:{BaseButton},
     computed: mapState({
         alert: (state) => state.employee.alert,
-        singleEmployee: (state) => state.employee.singleEmployee,
     }),
     emits: ["setIsStore"],
     methods: {
         ...mapActions([
             "toggleAlert",
             "deleteEmployee",
+            "deleteBatchEmployee",
             "getEmployee",
             "toggleDialog",
         ]),
 
         /**
-         * xác nhận cất nhân viên
+         * xác nhận cất hoặc xóa nhân viên
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
-        confirmStore(){
-            const me = this;
+        confirmClick(){
+            const me=this;
             me.toggleAlert();
-            me.$emit("setIsStore");
-        },
-
-        /**
-         * xác nhận xóa nhân viên
-         * Author: Vũ Tùng Lâm (30/10/2022)
-         */
-        confirmDelete(){
-            const me = this;
-            me.toggleAlert();
-            me.deleteEmployee(me.singleEmployee.EmployeeId);
+            if(me.alert.action==AlertAction.CONFIRM_STORE){
+                me.$emit("setIsStore");
+            }
+            if(me.alert.action==AlertAction.CONFIRM_DELETE){
+                 me.deleteEmployee();
+            }
+            if(me.alert.action==AlertAction.CONFIRM_DELETE_BATCH){
+                 me.deleteBatchEmployee();
+            }
         },
 
         /**

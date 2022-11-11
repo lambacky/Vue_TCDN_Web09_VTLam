@@ -1,5 +1,5 @@
 <template>
-    <button class="btn" :class="{'btn-secondary' : isSecondary}">{{btnText}}</button>
+    <button class="btn" :class="{'btn-secondary' : isSecondary}" :disabled="isDisabled" :tabindex="tabIndex">{{btnText}}</button>
 </template>
 
 <script>
@@ -13,6 +13,14 @@ export default {
         btnText: {
             type: String,
             default:"Button"
+        },
+        isDisabled: {
+            type: Boolean,
+            default:false
+        },
+        tabIndex:{
+            type: Number,
+            default:0
         }
     }
 }

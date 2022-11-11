@@ -1,79 +1,9 @@
-import FormMode from "../../enums/formMode.js"
-import Gender from "../../enums/gender.js"
-import axios from "axios";
+import FormMode from "@/enums/formMode";
+import Gender from "@/enums/gender";
 import AlertAction from "@/enums/alertAction";
-
-const state = {
-    dialogTitle: "Thêm khách hàng",
-    isShowLoading:true,
-    isShowDialog: false,
-    isShowAlert: false,
-    formMode: 0,
-    filter:{
-        pageSize:10,
-        pageNumber:1,
-        employeeFilter:""
-    },
-    employees: [],
-    employee:{},
-    singleEmployee:{},
-    totalEmployee: 0,
-    totalPage: 0,
-    alert:{
-        type:"success",
-        message:"",
-        action:AlertAction.DEFAULT,
-    }
-}
-
-const mutations = {
-    setDialogTitle(state,payload){
-        state.dialogTitle = payload;
-    },
-    changeFormMode(state, payload) {
-        state.formMode = payload;
-    },
-    toggleDialog(state){
-        state.isShowDialog=!state.isShowDialog;
-    },
-    toggleLoading(state){
-        state.isShowLoading=!state.isShowLoading;
-    },
-    toggleAlert(state){
-        state.isShowAlert=!state.isShowAlert;
-    },
-    getEmployee(state, payload){
-        state.employees = payload.Data;
-        for (const emp of state.employees){
-            if(emp.DateOfBirth){
-                emp.DateOfBirth=emp.DateOfBirth.split('T')[0];
-            }
-            if(emp.IdentityDate){
-                emp.IdentityDate=emp.IdentityDate.split('T')[0];
-            }
-        }
-        
-        state.totalEmployee = payload.TotalRecord;
-        state.totalPage = payload.TotalPage;
-    },
-    setNewEmployeeCode(state,payload){
-        state.singleEmployee.EmployeeCode = payload;
-        state.employee.EmployeeCode = payload;
-    },
-    selectEmployee(state,payload){
-        state.singleEmployee = payload;
-        state.employee = JSON.parse(JSON.stringify(payload));
-    },
-    setFilter(state,payload){
-        state.filter.pageSize = payload.pageSize;
-        state.filter.pageNumber = payload.pageNumber;
-        state.filter.employeeFilter = payload.employeeFilter;
-    },
-    setAlert(state,payload){
-        state.alert = payload;
-    }
-}
-
+import CONST_API from "@/enums/api.js";
+import axios from "axios";
+import state from "./state"
 const actions = {
     /**
      * Đặt tiêu đề cho form nhân viên
@@ -109,6 +39,9 @@ const actions = {
      */
     toggleLoading(context){
         context.commit("toggleLoading");
+    },
+    toggleCheckedEmployeeIds(context,id){
+        context.commit("toggleCheckedEmployeeIds",id);
     },
 
     /**
@@ -151,11 +84,13 @@ const actions = {
     async getEmployee(context){
         try {
             const res = await axios.get(
-              `https://amis.manhnv.net/api/v1/Employees/filter?pageSize=${state.filter.pageSize}&pageNumber=${state.filter.pageNumber}&employeeFilter=${state.filter.employeeFilter}`
+            `${CONST_API}/filter`, {params:{pageSize: state.filter.pageSize, pageNumber:state.filter.pageNumber,employeeFilter:state.filter.employeeFilter}}
             );
+            document.querySelectorAll("table input").forEach(checkbox => checkbox.checked=false);
             context.dispatch("toggleLoading");
             context.commit("getEmployee", res.data);
         } catch (error) {
+            context.dispatch("toggleLoading");
             console.error(error);
         }
     },
@@ -168,7 +103,7 @@ const actions = {
     async setNewEmployeeCode(context) {
         try {
           const res = await axios.get(
-            `https://amis.manhnv.net/api/v1/Employees/NewEmployeeCode`
+            `${CONST_API}/NewEmployeeCode`
           );
           context.commit("setNewEmployeeCode", res.data);
         } catch (error) {
@@ -184,7 +119,7 @@ const actions = {
     async addEmployee(context) {
         try {
             context.dispatch("toggleLoading");
-            await axios.post(`https://amis.manhnv.net/api/v1/Employees`, state.employee);
+            await axios.post(`${CONST_API}`, state.employee);
             
             //thông báo thành công
             context.dispatch("setAlert", {
@@ -220,7 +155,7 @@ const actions = {
         try {
             context.dispatch("toggleLoading");
             await axios.put(
-                `https://amis.manhnv.net/api/v1/Employees/${state.employee.EmployeeId}`,state.employee);
+                `${CONST_API}/${state.employee.EmployeeId}`,state.employee);
             
             //thông báo thành công
             context.dispatch("setAlert", {
@@ -254,10 +189,41 @@ const actions = {
      * @param {string} id
      * Author:Vũ Tùng Lâm (30/10/2022)
      */
-    async deleteEmployee(context,id){
+    async deleteEmployee(context){
         try {
-            await axios.delete(`https://amis.manhnv.net/api/v1/Employees/${id}`);
+            await axios.delete(`${CONST_API}/${state.employee.EmployeeId}`);
 
+            //thông báo thành công
+            context.dispatch("setAlert", {
+                type: "success",
+                message: "Xóa nhân viên thành công",
+                action: AlertAction.DEFAULT,
+            });
+
+            //load lại bộ lọc
+            context.dispatch("setFilter",{
+                pageSize:state.filter.pageSize,
+                pageNumber: 1,
+                employeeFilter: state.filter.employeeFilter
+            })
+
+            //load lại dữ liệu
+            context.dispatch("getEmployee");
+        } catch (error) {
+            handleException(error, context);
+        }
+    },
+
+    /**
+     * Xóa hàng loạt nhân viên
+     * @param {*} context 
+     * @param {string} id
+     * Author:Vũ Tùng Lâm (30/10/2022)
+     */
+     async deleteBatchEmployee(context){
+        try {
+            
+            await axios.post(`${CONST_API}/deleteBatch`,state.checkedEmployeeIds);
             //thông báo thành công
             context.dispatch("setAlert", {
                 type: "success",
@@ -297,18 +263,13 @@ const actions = {
  */
 const handleException = (error, context) => {
     context.dispatch("toggleLoading");
-    
+    console.log(error);
     //thông báo có lỗi
     context.dispatch("setAlert", {
       type: "danger",
-      message: error.response.data.userMsg,
+      message: error.response.data.UserMsg,
       action: AlertAction.DEFAULT,
     });
-  };
-
-export default {
-    state,
-    mutations,
-    actions,
 };
-  
+
+export default actions

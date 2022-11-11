@@ -23,19 +23,6 @@ export default {
   computed: mapState({
     isShowLoading :(state) =>state.employee.isShowLoading,
   }),
-  created() {
-    /**
-     * Ẩn dropdown khi click bên ngoài
-     * Author: Vũ Tùng Lâm (30/10/2022)
-     */
-    document.addEventListener('click',function(event){
-      document.querySelectorAll('.dropdown-list').forEach(dropdownList => {
-          if ((event.target!=dropdownList.previousElementSibling)) {
-              dropdownList.style.display="none";
-          }
-      });
-    });
-  },
 }
 </script>
 

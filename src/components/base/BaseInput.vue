@@ -1,7 +1,10 @@
 <template>
     <div class="input-wrapper" :class="inputWidth" >
-        <label class="input-label">{{inputLabel}}<span v-if="validateType=='required'" class="require-mark">*</span></label>
-        <input type="text" :value="modelValue" class="input"  :class="{'input-error':errorMess}" @input="$emit('update:modelValue',$event.target.value)">
+        <label v-if="inputLabel" class="input-label">{{inputLabel}}<span v-if="validateType=='required'" class="require-mark">*</span></label>
+        <input :type="inputType" :value="modelValue" class="input" :class="{'input-error':errorMess,'input-date':inputType=='date','input-with-icon':icon}"
+                @input="$emit('update:modelValue',$event.target.value)" :tabindex="tabIndex"
+                :placeholder="placeHolder" v-on:keyup="$emit('keyup')">
+        <div v-if="icon" class="icon" :class="icon"></div>
         <span v-if="errorMess" class="input-error-mess">{{errorMess}}</span>
     </div>
 </template>
@@ -9,8 +12,8 @@
 <script>
 export default {
     name:"BaseInput",
-    props:["inputLabel","errorMess","inputWidth","validateType","modelValue"],
-    emits:['update:modelValue'],
+    props:["inputLabel","errorMess","inputWidth","validateType","modelValue","inputType","tabIndex","placeHolder","icon"],
+    emits:['update:modelValue','keyup'],
     methods: {
         
     },

@@ -15,8 +15,30 @@
             </div> 
             <div class="page-button">
                 <button :disabled="filter.pageNumber==1" class="btn-prev" @click="selectPrevPage">Trước</button>
-                <div id="totalPage" class="total-page" data-currentpage="1">
+                <div v-if="totalPage<6" class="total-page">
                     <div v-for="(page,index) in totalPage" :key="index" class="page-number" :class="{ 'selected': filter.pageNumber == page }" @click="selectPageNumber(page)">{{page}}</div>
+                </div>
+                <div v-else class="total-page">
+                    <div class="page-number" :class="{ 'selected': filter.pageNumber == 1 }" @click="selectPageNumber(1)">1</div>
+                    <div v-if="filter.pageNumber>3" class="page-number" >...</div>
+
+                    <div v-if="filter.pageNumber==1||filter.pageNumber==2" class="total-page">
+                       <div class="page-number" :class="{ 'selected': filter.pageNumber == 2 }" @click="selectPageNumber(2)">2</div>
+                       <div class="page-number" @click="selectPageNumber(3)">3</div>
+                       <div class="page-number" @click="selectPageNumber(4)">4</div>
+                    </div>
+                    <div v-else-if="filter.pageNumber==totalPage||filter.pageNumber==totalPage-1" class="total-page">
+                       <div class="page-number" @click="selectPageNumber(totalPage-3)">{{totalPage-3}}</div>
+                       <div class="page-number" @click="selectPageNumber(totalPage-2)">{{totalPage-2}}</div>
+                       <div class="page-number" :class="{ 'selected': filter.pageNumber == totalPage-1 }" @click="selectPageNumber(totalPage-1)">{{totalPage-1}}</div>
+                    </div>
+                    <div v-else class="total-page">
+                        <div class="page-number" @click="selectPageNumber(filter.pageNumber-1)">{{filter.pageNumber-1}}</div>
+                       <div class="page-number" :class="'selected'">{{filter.pageNumber}}</div>
+                       <div class="page-number" @click="selectPageNumber(filter.pageNumber+1)">{{filter.pageNumber+1}}</div>
+                    </div>
+                    <div v-if="filter.pageNumber<totalPage-2" class="page-number" >...</div>
+                    <div class="page-number" :class="{ 'selected': filter.pageNumber == totalPage }" @click="selectPageNumber(totalPage)">{{totalPage}}</div>
                 </div>
                 <button :disabled="filter.pageNumber==totalPage" class="btn-next" @click="selectNextPage">Sau</button>
             </div>                  
@@ -94,7 +116,7 @@ export default {
                 employeeFilter: me.filter.employeeFilter
             });
             me.getEmployee();
-        },
-    },
+        }
+    }
 }
 </script>

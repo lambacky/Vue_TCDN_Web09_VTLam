@@ -6,25 +6,25 @@
                             <th>
                                 <input @change="checkAll" id="checkboxAll" class="input-checkbox" type="checkbox">
                             </th>
-                            <th style="min-width:150px">MÃ NHÂN VIÊN</th>
+                            <th style="min-width:140px">MÃ NHÂN VIÊN</th>
                             <th style="min-width:170px">TÊN NHÂN VIÊN</th>
                             <th style="min-width:105px">GIỚI TÍNH</th>
                             <th class="date" style="min-width:120px">NGÀY SINH</th>
                             <th title="Số chứng minh thư nhân dân" style="min-width:150px">SỐ CMND</th>
-                            <th style="min-width:140px">CHỨC DANH</th>
-                            <th style="min-width:200px">TÊN ĐƠN VỊ</th>
+                            <th style="min-width:120px">CHỨC DANH</th>
+                            <th style="min-width:230px">TÊN ĐƠN VỊ</th>
                             <th style="min-width:150px">SỐ TÀI KHOẢN</th>
-                            <th style="min-width:300px">TÊN NGÂN HÀNG</th>
-                            <th title="Chi nhánh tài khoản ngân hàng" style="min-width:300px">CHI NHÁNH TK NGÂN HÀNG</th>
+                            <th style="min-width:160px">TÊN NGÂN HÀNG</th>
+                            <th title="Chi nhánh tài khoản ngân hàng" style="min-width:240px">CHI NHÁNH TK NGÂN HÀNG</th>
                             <th class="function" style="min-width:120px">CHỨC NĂNG</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="(emp,index) in employees" :key="index" @dblclick="modifyForm(emp)">
                                 <td @dblclick.stop>
-                                    <input @change="checkOne" class="input-checkbox" type="checkbox">
+                                    <input @change="checkOne(emp.EmployeeId)" class="input-checkbox" type="checkbox">
                                 </td>
-                                <td id="employeeCodeCell">{{emp.EmployeeCode}}</td>
+                                <td>{{emp.EmployeeCode}}</td>
                                 <td>{{emp.EmployeeName}}</td>
                                 <td>{{emp.GenderName}}</td>
                                 <td class="date">{{formatDate(emp.DateOfBirth)}}</td>
@@ -63,12 +63,15 @@ export default {
         employees: (state) => state.employee.employees,
         totalEmployee: (state) => state.employee.totalEmployee,
         singleEmployee: (state) => state.employee.singleEmployee,
+        checkedEmployeeIds: (state) => state.employee.checkedEmployeeIds,
     }),
+    
     methods: {
         ...mapActions([
             "changeFormMode",
             "toggleDialog",
             "toggleAlert",
+            "toggleCheckedEmployeeIds",
             "getEmployee",
             "selectEmployee",
             "setAlert",
@@ -133,19 +136,30 @@ export default {
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         checkAll(event){
+            const me=this;
             let checkboxes = document.querySelectorAll("tbody input");
             checkboxes.forEach(checkbox=>{checkbox.checked=event.target.checked});
-            document.querySelector('#btnDelete').disabled = !event.target.checked;
+            if(event.target.checked==true){
+                for(const emp of me.employees){
+                    if(!me.checkedEmployeeIds.includes(emp.EmployeeId)){
+                        me.toggleCheckedEmployeeIds(emp.EmployeeId);
+                    }
+                }
+            }else{
+                for(const emp of me.employees){
+                        me.toggleCheckedEmployeeIds(emp.EmployeeId);
+                }
+            }
         },
 
         /**
          * check từng checkbox
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
-        checkOne(){
+        checkOne(id){
+            const me=this;
             document.querySelector('#checkboxAll').checked = (document.querySelectorAll("tbody input:checked").length==document.querySelectorAll("tbody input").length);
-            document.querySelector('#btnDelete').disabled = (document.querySelectorAll("tbody input:checked").length==0);
-
+            me.toggleCheckedEmployeeIds(id);
         },
 
         /**
@@ -161,6 +175,19 @@ export default {
                 dropdownList.style.display="block";
             }
         },
+    },
+    mounted(){
+        /**
+         * Ẩn dropdown khi click bên ngoài
+         * Author: Vũ Tùng Lâm (30/10/2022)
+         */
+        document.addEventListener('click',function(event){
+            document.querySelectorAll(".dropdown-list").forEach(item => {
+                if ((event.target!=item.previousElementSibling)) {
+                    item.style.display="none";
+                }
+            });
+        });
     },
     data() {
         return {
