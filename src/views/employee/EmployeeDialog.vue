@@ -6,82 +6,82 @@
                     <div id="formTitle" class="dialog-title">{{dialogTitle}}</div>
                     <div class="input-checkbox-wrapper">
                         <input ref="First" tabindex="1"  class="input-checkbox" type="checkbox">
-                        <label class="input-checkbox-label">Là khách hàng</label>
+                        <label class="input-checkbox-label">{{Text.isCustomer}}</label>
                     </div>
                     <div class="input-checkbox-wrapper">
                         <input ref="Last" tabindex="21"  class="input-checkbox" type="checkbox">
-                        <label class="input-checkbox-label">Là nhà cung cấp</label>
+                        <label class="input-checkbox-label">{{Text.isProvider}}</label>
                     </div>
                 </div>
                 <div class="dialog-header-right">
-                    <div class="icon icon-help" title="Trợ giúp"></div>
-                    <div @click="escDialog" id="btnEsc" class="icon icon-close" title="Thoát"></div>
+                    <div class="icon icon-help" :title="Text.helpToolTip"></div>
+                    <div @click="escDialog" id="btnEsc" class="icon icon-close" :title="Text.escToolTip"></div>
                 </div>
             </div>
             <form id="employeeForm" class="dialog-body">
                 <div class="dialog-body-top">
                     <div class="dialog-body-left w-50">
                         <div class="row-flex">
-                            <BaseInput @keydown="focusLast" ref="EmployeeCode" :inputLabel="'Mã'" :inputWidth="'w-40'" :validateType="'required'" v-model="employee.EmployeeCode" :errorMess="errors.EmployeeCode" :tabIndex="2" />
-                            <BaseInput :inputLabel="'Tên'" :inputWidth="'flex-1'" :validateType="'required'" v-model="employee.EmployeeName" :errorMess="errors.EmployeeName" :tabIndex="3"  />
+                            <BaseInput @keydown="focusLast" ref="EmployeeCode" :inputLabel="FieldName.employeeCode" :inputWidth="'w-40'" :validateType="'required'" v-model="employee.EmployeeCode" :errorMess="errors.EmployeeCode" :tabIndex="2" />
+                            <BaseInput :inputLabel="FieldName.employeeName" :inputWidth="'flex-1'" :validateType="'required'" v-model="employee.EmployeeName" :errorMess="errors.EmployeeName" :tabIndex="3"  />
                         </div>
                         <div class="input-wrapper" style="overflow:visible">
-                            <label class="input-label">Đơn vị <span class="require-mark">*</span></label>
+                            <label class="input-label">{{FieldName.departmentName}}<span class="require-mark">*</span></label>
                             <BaseCombobox :errorMess="errors.DepartmentName" :dataList="departments.map(dep => dep.DepartmentName)" :className="'department-list'" 
                                             :selectedItem="employee.DepartmentName" @selectAction="selectDepartment" :tabIndex="6"/>
                         </div>
-                        <BaseInput :inputLabel="'Chức danh'" v-model="employee.EmployeePosition" :errorMess="errors.EmployeePosition" :tabIndex="9" />
+                        <BaseInput :inputLabel="FieldName.employeePosition" v-model="employee.EmployeePosition" :errorMess="errors.EmployeePosition" :tabIndex="9" />
                     </div>
                     <div class="dialog-body-right w-50">
                         <div class="row-flex">
                             <BaseInput :inputLabel="'Ngày sinh'" :inputType="'date'" :inputWidth="'w-40'" v-model="employee.DateOfBirth" :errorMess="errors.DateOfBirth" :tabIndex="4" />
                             <div class="input-wrapper flex-1">
-                                <label class="input-label">Giới tính</label>
+                                <label class="input-label">{{FieldName.gender}}</label>
                                 <div class="input-checkbox-list gender-list">
                                     <div class="input-checkbox-wrapper">
                                         <input class="input-checkbox" type="radio" value="0" name="Gender" :checked="employee.Gender === 0" tabindex="5" @change="(e)=>(employee.Gender = parseInt(e.target.value))">
-                                        <label class="input-label">Nam</label>
+                                        <label class="input-label">{{Text.male}}</label>
                                     </div>
                                     <div class="input-checkbox-wrapper">
                                         <input class="input-checkbox" type="radio" value="1" name="Gender" :checked="employee.Gender === 1" tabindex="5" @change="(e)=>(employee.Gender = parseInt(e.target.value))">
-                                        <label class="input-label">Nữ</label>
+                                        <label class="input-label">{{Text.female}}</label>
                                     </div>
                                     <div class="input-checkbox-wrapper">
                                         <input class="input-checkbox" type="radio" value="2" name="Gender" :checked="employee.Gender === 2" tabindex="5" @change="(e)=>(employee.Gender = parseInt(e.target.value))">
-                                        <label class="input-label">Khác</label>
+                                        <label class="input-label">{{Text.other}}</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="row-flex">
-                            <BaseInput :inputLabel="'Số CMND'" :inputWidth="'w-60'" v-model="employee.IdentityNumber" :errorMess="errors.IdentityNumber" :tabIndex="7" />
-                            <BaseInput :inputLabel="'Ngày cấp'" :inputType="'date'" :inputWidth="'flex-1'" v-model="employee.IdentityDate" :errorMess="errors.IdentityDate" :tabIndex="8" />
+                            <BaseInput :inputLabel="FieldName.identityNumber" :inputWidth="'w-60'" v-model="employee.IdentityNumber" :errorMess="errors.IdentityNumber" :tabIndex="7" />
+                            <BaseInput :inputLabel="FieldName.identityDate" :inputType="'date'" :inputWidth="'flex-1'" v-model="employee.IdentityDate" :errorMess="errors.IdentityDate" :tabIndex="8" />
                         </div>
-                        <BaseInput :inputLabel="'Nơi cấp'" v-model="employee.IdentityPlace" :errorMess="errors.IdentityPlace" :tabIndex="10" />
+                        <BaseInput :inputLabel="FieldName.identityPlace" v-model="employee.IdentityPlace" :errorMess="errors.IdentityPlace" :tabIndex="10" />
                 </div>
                 
                 </div>
                 <div class="dialog-body-bottom">
-                    <BaseInput :inputLabel="'Địa chỉ'" v-model="employee.Address" :errorMess="errors.Address" :tabIndex="11" />
+                    <BaseInput :inputLabel="FieldName.address" v-model="employee.Address" :errorMess="errors.Address" :tabIndex="11" />
                     <div class="row-flex">
-                        <BaseInput :inputLabel="'ĐT di động'" :inputWidth="'w-25'" v-model="employee.TelephoneNumber" :errorMess="errors.TelephoneNumber" :tabIndex="12" />
-                        <BaseInput :inputLabel="'ĐT cố định'" :inputWidth="'w-25'" v-model="employee.PhoneNumber" :errorMess="errors.PhoneNumber" :tabIndex="13" />
-                        <BaseInput :inputLabel="'Email'" :inputWidth="'w-25'" v-model="employee.Email" :errorMess="errors.Email" :tabIndex="14" />
+                        <BaseInput :inputLabel="FieldName.telephoneNumber" :labelTooltip="FieldName.telephoneNumberToolTip" :inputWidth="'w-25'" v-model="employee.TelephoneNumber" :errorMess="errors.TelephoneNumber" :tabIndex="12" />
+                        <BaseInput :inputLabel="FieldName.phoneNumber" :labelTooltip="FieldName.phoneNumberToolTip" :inputWidth="'w-25'" v-model="employee.PhoneNumber" :errorMess="errors.PhoneNumber" :tabIndex="13" />
+                        <BaseInput :inputLabel="FieldName.email" :inputWidth="'w-25'" v-model="employee.Email" :errorMess="errors.Email" :tabIndex="14" />
                         <div class="w-25"></div>
                     </div>
                     <div class="row-flex">
-                        <BaseInput :inputLabel="'Tài khoản ngân hàng'" :inputWidth="'w-25'" v-model="employee.BankAccountNumber" :errorMess="errors.BankAccountNumber" :tabIndex="15" />
-                        <BaseInput :inputLabel="'Tên ngân hàng'" :inputWidth="'w-25'" v-model="employee.BankName" :errorMess="errors.BankName" :tabIndex="16" />
-                        <BaseInput :inputLabel="'Chi nhánh'" :inputWidth="'w-25'" v-model="employee.BankBranchName" :errorMess="errors.BankBranchName" :tabIndex="17" />
+                        <BaseInput :inputLabel="FieldName.bankAccountNumber" :inputWidth="'w-25'" v-model="employee.BankAccountNumber" :errorMess="errors.BankAccountNumber" :tabIndex="15" />
+                        <BaseInput :inputLabel="FieldName.bankName" :inputWidth="'w-25'" v-model="employee.BankName" :errorMess="errors.BankName" :tabIndex="16" />
+                        <BaseInput :inputLabel="FieldName.bankBranchName" :labelTooltip="FieldName.bankBranchNameToolTip" :inputWidth="'w-25'" v-model="employee.BankBranchName" :errorMess="errors.BankBranchName" :tabIndex="17" />
                         <div class="w-25"></div>
                     </div>
                 </div>
             </form>
             <div class="dialog-footer">
-                <BaseButton :btnText="'Hủy'" :isSecondary="true" @click="toggleDialog" @keydown="focusFirst" :tabIndex="20"/>
+                <BaseButton :btnText="Text.cancel" :isSecondary="true" @click="toggleDialog" @keydown="focusFirst" :tabIndex="20"/>
                 <div class="btn-action">
-                    <BaseButton :btnText="'Cất'" :isSecondary="true" @click="saveData" :tabIndex="19"/>
-                    <BaseButton :btnText="'Cất và thêm'" @click="saveAddData" :tabIndex="18"/>
+                    <BaseButton :btnText="Text.store" :isSecondary="true" @click="saveData" :tabIndex="19"/>
+                    <BaseButton :btnText="Text.storeAdd" @click="saveAddData" :tabIndex="18"/>
 
                 </div>
             </div>
@@ -90,25 +90,26 @@
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex"
+import { mapActions, mapGetters } from "vuex"
 import FormMode from "../../enums/formMode.js"
 import AlertAction from "../../enums/alertAction.js"
 import BaseButton from "../../components/base/BaseButton.vue"
 import BaseCombobox from "../../components/base/BaseCombobox.vue"
 import BaseInput from "../../components/base/BaseInput.vue"
+import resourceVN from "../../resources/resourceVN"
 
 export default {
     name:"EmployeeDialog",
     components:{BaseButton,BaseInput,BaseCombobox},
-    computed: mapState({
-        isShowDialog: (state) => state.employee.isShowDialog,
-        formMode: (state) => state.employee.formMode,
-        employee : (state) => state.employee.employee,
-        singleEmployee : (state) => state.employee.singleEmployee,
-        departments: (state) => state.department.departments,
-        alert: (state) => state.employee.alert,
-        dialogTitle: (state) => state.employee.dialogTitle
-    }),
+    computed:mapGetters([
+        "isShowDialog",
+        "formMode",
+        "employee",
+        "singleEmployee",
+        "departments",
+        "alert",
+        "dialogTitle",
+    ]),
     created() {
         const me=this;
         //lấy mã nhân viên mới
@@ -118,8 +119,14 @@ export default {
         
     },
     mounted(){
+        let me=this;
         //focus vào input mã nhân viên
-        this.$refs.EmployeeCode.$el.querySelector("input").focus();
+        me.$refs.EmployeeCode.$el.querySelector("input").focus();
+        document.addEventListener("keydown",me.shortcutKey);
+    },
+    unmounted(){
+        let me=this;
+        document.removeEventListener("keydown",me.shortcutKey);
     },
     props: ["isStore"],
     emits: ["isStoreDone"],
@@ -187,7 +194,7 @@ export default {
                 if (me.formMode == FormMode.STORE ||me.formMode == FormMode.STORE_AND_ADD) {
                     //thêm nhân viên
                     me.addEmployee();
-                } else if (me.formMode == FormMode.EDIT ||me.formMode == FormMode.EDIt_AND_ADD) {
+                } else if (me.formMode == FormMode.EDIT ||me.formMode == FormMode.EDIT_AND_ADD) {
                     //sửa nhân viên
                     me.editEmployee();
                 }
@@ -207,39 +214,49 @@ export default {
 
             // Mã không được để trống
             if(!me.employee.EmployeeCode){
-                me.errors.EmployeeCode="Mã không được để trống";
+                me.errors.EmployeeCode=resourceVN.ErrorMessage.emptyEmployeeCode;
             }else{
                 if(!me.employee.EmployeeCode.match(/(NV)(\d+)/)){
-                    me.errors.EmployeeCode="Mã không đúng định dạng";
+                    me.errors.EmployeeCode=resourceVN.ErrorMessage.invalidEmployeeCode;
                 }
             }
 
             // Tên không được để trống
             if(!me.employee.EmployeeName){
-                me.errors.EmployeeName="Tên không được để trống";
+                me.errors.EmployeeName=resourceVN.ErrorMessage.emptyEmployeeName;
                 
             }
 
             // Đơn vị không được để trống
             if(!me.employee.DepartmentName){
-                me.errors.DepartmentName="Đơn vị không được để trống";
+                me.errors.DepartmentName=resourceVN.ErrorMessage.emptyDepartmentName;
                 
+            }
+
+            //chuyển empty thành null
+            if(me.employee.DateOfBirth==""){
+                me.employee.DateOfBirth=null;
             }
 
             // Ngày sinh không được lớn hơn hiện tại
             if(me.employee.DateOfBirth){
                 let currentDate = (new Date()).toISOString().split('T')[0];
                 if(me.employee.DateOfBirth>currentDate){
-                    me.errors.DateOfBirth="Ngày sinh không được lớn hơn hiện tại";
+                    me.errors.DateOfBirth=resourceVN.ErrorMessage.invalidDateOfBirth;
                     
                 }
+            }
+
+            //chuyển empty thành null
+            if(me.employee.DateOfBirth==""){
+                me.employee.DateOfBirth=null;
             }
 
             // Ngày cấp không được lớn hơn hiện tại
             if(me.employee.IdentityDate){
                 let currentDate = (new Date()).toISOString().split('T')[0];
                 if(me.employee.IdentityDate>currentDate){
-                    me.errors.IdentityDate="Ngày cấp không được lớn hơn hiện tại";
+                    me.errors.IdentityDate=resourceVN.ErrorMessage.invalidIdentityDate;
                     
                 }
             }
@@ -248,7 +265,7 @@ export default {
             if(me.employee.Email){
                 var mailFormat = /^([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+)@([a-zA-Z0-9-]+)((\.[a-zA-Z0-9-]{2,3})+)$/;
                 if(!me.employee.Email.match(mailFormat)){
-                    me.errors.Email="Email không đúng định dạng";
+                    me.errors.Email=resourceVN.ErrorMessage.invalidEmail;
                 }
             }
 
@@ -291,7 +308,7 @@ export default {
             if (JSON.stringify(me.employee) !== JSON.stringify(me.singleEmployee)) {
                 me.setAlert({
                     type: "question",
-                    message: "Dữ liệu đã thay đổi. Bạn có muốn cất không?",
+                    message: resourceVN.AlertMessage.changeDataQuestion,
                     action: AlertAction.CONFIRM_STORE,
                 });
             } else {
@@ -321,6 +338,24 @@ export default {
             }
             
         },
+
+        /**
+         * xử lí phím tắt
+         * @param {*} e
+         * Author: Vũ Tùng Lâm (9/11/2022)
+         */
+        shortcutKey(e){
+            let me=this;
+            if(e.which==27){
+                me.escDialog();
+            }
+            if(e.ctrlKey && e.key=="F8"){
+                me.saveData();
+            }
+            if(e.ctrlKey && e.key=="F9"){
+                me.toggleDialog();
+            }
+        }
         
     },
     watch: {
@@ -334,7 +369,9 @@ export default {
     },
     data() {
         return {
-            errors:{}
+            errors:{},
+            FieldName: resourceVN.FieldName,
+            Text: resourceVN.Text
         }
     },
 }

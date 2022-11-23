@@ -1,82 +1,34 @@
 <template>
-    <div class="table-wrapper">
-                <table id="empTable">
-                    <thead>
-                        <tr>
-                            <th>
-                                <input @change="checkAll" id="checkboxAll" class="input-checkbox" type="checkbox">
-                            </th>
-                            <th style="min-width:140px">MÃ NHÂN VIÊN</th>
-                            <th style="min-width:170px">TÊN NHÂN VIÊN</th>
-                            <th style="min-width:105px">GIỚI TÍNH</th>
-                            <th class="date" style="min-width:120px">NGÀY SINH</th>
-                            <th title="Số chứng minh thư nhân dân" style="min-width:150px">SỐ CMND</th>
-                            <th style="min-width:120px">CHỨC DANH</th>
-                            <th style="min-width:230px">TÊN ĐƠN VỊ</th>
-                            <th style="min-width:150px">SỐ TÀI KHOẢN</th>
-                            <th style="min-width:160px">TÊN NGÂN HÀNG</th>
-                            <th title="Chi nhánh tài khoản ngân hàng" style="min-width:240px">CHI NHÁNH TK NGÂN HÀNG</th>
-                            <th class="function" style="min-width:120px">CHỨC NĂNG</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(emp,index) in employees" :key="index" @dblclick="modifyForm(emp)">
-                                <td @dblclick.stop>
-                                    <input @change="checkOne(emp.EmployeeId)" class="input-checkbox" type="checkbox">
-                                </td>
-                                <td>{{emp.EmployeeCode}}</td>
-                                <td>{{emp.EmployeeName}}</td>
-                                <td>{{emp.GenderName}}</td>
-                                <td class="date">{{formatDate(emp.DateOfBirth)}}</td>
-                                <td>{{emp.IdentityNumber}}</td>
-                                <td>{{emp.EmployeePosition}}</td>
-                                <td>{{emp.DepartmentName}}</td>
-                                <td>{{emp.BankAccountNumber}}</td>
-                                <td>{{emp.BankName}}</td>
-                                <td>{{emp.BankBranchName}}</td>
-                                <td @dblclick.stop :style="{'z-index': employees.length-index}">
-                                    <div class="table-function">
-                                        <div class="modify" @click="modifyForm(emp)">Sửa</div>
-                                        <div class="dropdown context-menu">
-                                            <div class="icon dropdown-button icon-arrow-down-blue" @click="toggleList"></div>
-                                            <div class="dropdown-list">
-                                                <div class="dropdown-item">Nhân bản</div>
-                                                <div @click="selectDelete(emp)" class="dropdown-item delete-item">Xóa</div>
-                                                <div class="dropdown-item">Ngưng sử dụng</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                    </tbody>
-                </table>
-            </div>
+    <BaseTable :headers="headers" :dataList="employees" :mapData="mapData" 
+    @modifyForm="modifyForm" @selectDuplicate="selectDuplicate" @selectDelete="selectDelete"
+    @checkAll="checkAll" @checkOne="checkOne"/>
 </template>
 
 <script>
-import  FormMode  from "../../enums/formMode.js"
+import BaseTable from '../../components/base/BaseTable.vue'
+import  FormMode  from "@/enums/formMode.js"
 import AlertAction from "../../enums/alertAction.js"
-import { mapActions, mapState } from "vuex"
+import { mapActions, mapGetters } from "vuex"
+import resourceVN from "../../resources/resourceVN"
 export default {
     name:"EmployeeTable",
-    computed: mapState({
-        employees: (state) => state.employee.employees,
-        totalEmployee: (state) => state.employee.totalEmployee,
-        singleEmployee: (state) => state.employee.singleEmployee,
-        checkedEmployeeIds: (state) => state.employee.checkedEmployeeIds,
-    }),
-    
+    components:{BaseTable},
+    computed: mapGetters([
+        "employees",
+        "totalEmployee",
+        "singleEmployee",
+        "checkedEmployeeIds",
+    ]),
     methods: {
         ...mapActions([
             "changeFormMode",
             "toggleDialog",
             "toggleAlert",
-            "toggleCheckedEmployeeIds",
+            "setCheckedEmployeeIds",
             "getEmployee",
             "selectEmployee",
             "setAlert",
             "setDialogTitle",
-
         ]),
 
         /**
@@ -108,7 +60,7 @@ export default {
          */
         modifyForm(emp){
             const me = this;
-            me.setDialogTitle("Sửa khách hàng");
+            me.setDialogTitle(resourceVN.Text.modifyFormTitle);
             me.changeFormMode(FormMode.EDIT);
             me.selectEmployee(emp);
             me.toggleDialog();
@@ -124,10 +76,23 @@ export default {
             me.selectEmployee(emp);
             me.setAlert({
                 type:"warning",
-                message: `Bạn có thực sự muốn xóa Nhân viên <${me.singleEmployee.EmployeeCode}> không?`,
+                message: resourceVN.AlertMessage.deleteWarning.replace("0",me.singleEmployee.EmployeeCode),
                 action: AlertAction.CONFIRM_DELETE
             });
 
+        },
+
+        /**
+         * chọn nhân bản
+         * @param {*} emp
+         * Author: Vũ Tùng Lâm (30/10/2022)
+         */
+        selectDuplicate(emp){
+            const me = this;
+            me.setDialogTitle(resourceVN.Text.addFormTitle);
+            me.changeFormMode(FormMode.STORE);
+            me.selectEmployee(emp);
+            me.toggleDialog();
         },
 
         /**
@@ -137,61 +102,96 @@ export default {
          */
         checkAll(event){
             const me=this;
-            let checkboxes = document.querySelectorAll("tbody input");
-            checkboxes.forEach(checkbox=>{checkbox.checked=event.target.checked});
-            if(event.target.checked==true){
-                for(const emp of me.employees){
+            for(const emp of me.employees){
+                if(event.target.checked==true){
                     if(!me.checkedEmployeeIds.includes(emp.EmployeeId)){
-                        me.toggleCheckedEmployeeIds(emp.EmployeeId);
+                        me.setCheckedEmployeeIds(emp.EmployeeId);
                     }
-                }
-            }else{
-                for(const emp of me.employees){
-                        me.toggleCheckedEmployeeIds(emp.EmployeeId);
+                }else{
+                    me.setCheckedEmployeeIds(emp.EmployeeId);
                 }
             }
         },
 
         /**
          * check từng checkbox
+         * @param {*} emp
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
-        checkOne(id){
+        checkOne(emp){
             const me=this;
-            document.querySelector('#checkboxAll').checked = (document.querySelectorAll("tbody input:checked").length==document.querySelectorAll("tbody input").length);
-            me.toggleCheckedEmployeeIds(id);
+            me.setCheckedEmployeeIds(emp.EmployeeId);
         },
 
         /**
-         * Ẩn/hiện dropdown
-         * @param {*} event
+         * lấy dữ liệu cần thiết từ nhân viên
+         * @param {*} emp
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
-        toggleList(event){
-            let dropdownList = event.target.nextElementSibling;
-            if(dropdownList.style.display=="block"){
-                dropdownList.style.display="none";
-            }else{
-                dropdownList.style.display="block";
-            }
-        },
-    },
-    mounted(){
-        /**
-         * Ẩn dropdown khi click bên ngoài
-         * Author: Vũ Tùng Lâm (30/10/2022)
-         */
-        document.addEventListener('click',function(event){
-            document.querySelectorAll(".dropdown-list").forEach(item => {
-                if ((event.target!=item.previousElementSibling)) {
-                    item.style.display="none";
-                }
-            });
-        });
+        mapData(emp){
+            let me=this;
+            var arr=[
+                emp.EmployeeCode,
+                emp.EmployeeName,
+                emp.GenderName,
+                me.formatDate(emp.DateOfBirth),
+                emp.IdentityNumber,
+                emp.EmployeePosition,
+                emp.DepartmentName,
+                emp.BankAccountNumber,
+                emp.BankName,
+                emp.BankBranchName
+                ];
+            return arr;
+        }
     },
     data() {
         return {
-            isShowList:false,
+            headers:[
+                {
+                    name:resourceVN.FieldName.employeeCode.toUpperCase(),
+                    minWidth:"140px"
+                },
+                {
+                    name:resourceVN.FieldName.employeeName.toUpperCase(),
+                    minWidth:"170px"
+                },
+                {
+                    name:resourceVN.FieldName.gender.toUpperCase(),
+                    minWidth:"105px"
+                },
+                {
+                    name:resourceVN.FieldName.dateOfBirth.toUpperCase(),
+                    minWidth:"120px",
+                    class:"date"
+                },
+                {
+                    name:resourceVN.FieldName.identityNumber.toUpperCase(),
+                    minWidth:"150px",
+                    title:resourceVN.FieldName.identityNumberToolTip
+                },
+                {
+                    name:resourceVN.FieldName.employeePosition.toUpperCase(),
+                    minWidth:"120px"
+                },
+                {
+                    name:resourceVN.FieldName.departmentName.toUpperCase(),
+                    minWidth:"230px"
+                },
+                {
+                    name:resourceVN.FieldName.bankAccountNumber.toUpperCase(),
+                    minWidth:"150px"
+                },
+                {
+                    name:resourceVN.FieldName.bankName.toUpperCase(),
+                    minWidth:"160px"
+                },
+                {
+                    name:resourceVN.FieldName.bankBranchName.toUpperCase(),
+                    minWidth:"240px",
+                    title:resourceVN.FieldName.bankBranchNameToolTip
+                },
+            ]
         }
     },
 }

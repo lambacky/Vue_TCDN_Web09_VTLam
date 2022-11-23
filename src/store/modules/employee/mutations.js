@@ -8,13 +8,7 @@ const mutations = {
     toggleDialog(state){
         state.isShowDialog=!state.isShowDialog;
     },
-    toggleLoading(state){
-        state.isShowLoading=!state.isShowLoading;
-    },
-    toggleAlert(state){
-        state.isShowAlert=!state.isShowAlert;
-    },
-    toggleCheckedEmployeeIds(state,payload){
+    setCheckedEmployeeIds(state,payload){
         if(!state.checkedEmployeeIds.includes(payload)){
             state.checkedEmployeeIds.push(payload);
         }else{
@@ -41,16 +35,13 @@ const mutations = {
         state.employee.EmployeeCode = payload;
     },
     selectEmployee(state,payload){
-        state.singleEmployee = payload;
+        state.singleEmployee = JSON.parse(JSON.stringify(payload));
         state.employee = JSON.parse(JSON.stringify(payload));
     },
     setFilter(state,payload){
         state.filter.pageSize = payload.pageSize;
         state.filter.pageNumber = payload.pageNumber;
         state.filter.employeeFilter = payload.employeeFilter;
-    },
-    setAlert(state,payload){
-        state.alert = payload;
     }
 }
 export default mutations

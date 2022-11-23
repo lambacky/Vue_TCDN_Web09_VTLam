@@ -1,4 +1,6 @@
 import axios from "axios";
+import CONST_API from "@/constants/api";
+
 
 const actions = {
     /**
@@ -8,7 +10,7 @@ const actions = {
      */
     async getDepartment(context) {
       try {
-        const res = await axios.get(`https://amis.manhnv.net/api/v1/Departments`);
+        const res = await axios.get(`${CONST_API}/Departments`);
         context.commit("getDepartment", res.data);
       } catch (error) {
         console.log(error);

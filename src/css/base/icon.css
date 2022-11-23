@@ -86,7 +86,14 @@
 }
 
 .icon-refresh:hover {
-    background-position: -1097px -88px  ;
+    background-position: -1097px -88px;
+}
+
+.icon-excel {
+    background-position: -705px -200px;
+}
+.icon-excel:hover {
+    background-position: -705px -256px;
 }
 
 .icon-search {
@@ -102,11 +109,12 @@
 }
 
 .icon-arrow-dropdown {
-    background-position: -559px -358px;
+    background-position: -560px -358px;
 }
 
 .icon-help {
     background-position: -89px -144px;
+    cursor: pointer;
 }
 
 .icon-close {
@@ -133,7 +141,12 @@
 }
 
 .icon-success {
-    background-position: -990px -462px;
-    width:36px;
-    height:36px;
+    background-position: -507px -404px;
+}
+
+.icon-close-small{
+    background-position: -1175px -360px;
+    width:16px;
+    height:16px;
+    cursor: pointer;
 }

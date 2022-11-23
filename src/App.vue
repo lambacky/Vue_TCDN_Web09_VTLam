@@ -4,25 +4,24 @@
     <TheHeader/>
     <TheMainContent/>
   </div>
-  <div v-if="isShowLoading" id="loading" class="loading-svg">
-        <div class="icon-loading"></div>
-  </div>
+  <BaseLoading v-if="isShowLoading" />
+  <BaseToastMessage v-if="isShowToastMessage" />
 </template>
 
 <script>
-import {  mapState } from 'vuex'
+import {  mapGetters } from 'vuex'
 import TheHeader from './components/layouts/TheHeader.vue'
 import TheMainContent from './components/layouts/TheMainContent.vue'
 import TheSidebar from './components/layouts/TheSidebar.vue'
+import BaseLoading from './components/base/BaseLoading.vue'
+import BaseToastMessage from './components/base/BaseToastMessage.vue'
 
 export default {
   name: 'App',
   components: {
-    TheHeader,TheSidebar,TheMainContent
+    TheHeader,TheSidebar,TheMainContent,BaseLoading,BaseToastMessage
   },
-  computed: mapState({
-    isShowLoading :(state) =>state.employee.isShowLoading,
-  }),
+  computed: mapGetters(["isShowLoading","isShowToastMessage"])
 }
 </script>
 

@@ -57,14 +57,6 @@
     gap:24px;
 
 }
-
-.dialog-body-left,.dialog-body-right,.dialog-body-bottom{
-    padding-bottom:24px;
-    display:flex;
-    flex-direction: column;
-    gap:24px;
-}
-
 .row-flex{
     width:100%;
     display:flex;

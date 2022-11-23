@@ -1,5 +1,5 @@
 <template>
-    <!-- <div class="dialog-wrapper alert">
+    <div class="dialog-wrapper alert">
         <div class="dialog alert-dialog">
             <div class="dialog-body alert-body">
                 <div v-if="alert.type=='warning'" class="icon icon-warning"></div>
@@ -26,53 +26,48 @@
                     <BaseButton :btnText="Text.confirm" @click="confirmClick" tabIndex="1" />
                 </div>
             </div>
+
         </div>
-    </div> -->
-    <BaseAlert :alert="alert" @confirmClick="confirmClick" @closeAll="closeAll"/>
+    </div>
 </template>
 
 <script>
-import AlertAction from '@/enums/alertAction';
-import { mapGetters, mapActions } from 'vuex'
-import BaseAlert from '../../components/base/BaseAlert.vue'
+import { mapActions } from 'vuex'
+import BaseButton from './BaseButton.vue'
+import resourceVN from "../../resources/resourceVN"
 export default {
     name:"EmployeeAlert",
-    components:{BaseAlert},
-    computed: mapGetters(["alert"]),
-    emits: ["setIsStore"],
+    components:{BaseButton},
+    props:["alert"],
+    emits: ["confirmClick","closeAll"],
     methods: {
         ...mapActions([
             "toggleAlert",
-            "deleteEmployee",
-            "deleteBatchEmployee",
-            "getEmployee",
-            "toggleDialog",
         ]),
 
         /**
-         * xác nhận cất hoặc xóa nhân viên
+         * xác nhận cất hoặc xóa dữ liệu
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         confirmClick(){
             const me=this;
-            if(me.alert.action==AlertAction.CONFIRM_STORE){
-                me.$emit("setIsStore");
-            }
-            if(me.alert.action==AlertAction.CONFIRM_DELETE){
-                 me.deleteEmployee();
-            }
-            if(me.alert.action==AlertAction.CONFIRM_DELETE_BATCH){
-                 me.deleteBatchEmployee();
-            }
+            me.toggleAlert();
+            me.$emit("confirmClick");
         },
 
         /**
-         * chọn không xóa nhân viện
+         * chọn không xóa dữ liệu
          * Author: Vũ Tùng Lâm (30/10/2022)
          */
         closeAll(){
             const me = this;
-            me.toggleDialog();
+            me.toggleAlert();
+            me.$emit("closeAll");
+        }
+    },
+    data() {
+        return {
+            Text: resourceVN.Text
         }
     },
 }

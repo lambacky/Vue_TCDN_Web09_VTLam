@@ -1,6 +1,6 @@
 <template>
     <div class="combobox">           
-        <input class="input" type="text" :value="selectedItem" readonly :tabindex="tabIndex">
+        <input class="input" type="text" :value="selectedItem" readonly :tabindex="tabIndex" @keydown.enter="toggleList" :title="errorMess">
         <span v-if="errorMess" class="input-error-mess">{{errorMess}}</span>
         <div class="combobox-button" @click="toggleList">
             <div class="icon icon-arrow-dropdown"></div>

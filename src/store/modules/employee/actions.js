@@ -1,9 +1,10 @@
 import FormMode from "@/enums/formMode";
 import Gender from "@/enums/gender";
 import AlertAction from "@/enums/alertAction";
-import CONST_API from "@/enums/api.js";
+import CONST_API from "@/constants/api.js";
 import axios from "axios";
 import state from "./state"
+import resourceVN from "@/resources/resourceVN";
 const actions = {
     /**
      * Đặt tiêu đề cho form nhân viên
@@ -13,6 +14,7 @@ const actions = {
     setDialogTitle(context,title){
         context.commit("setDialogTitle", title);
     },
+
     /**
      * đổi chế độ của form
      * @param {*} context 
@@ -33,36 +35,15 @@ const actions = {
     },
 
     /**
-     * Ẩn/hiện loading
+     * lấy danh sách những nhân viên được chọn
      * @param {*} context 
+     * @param {*} id 
      * Author:Vũ Tùng Lâm (30/10/2022)
      */
-    toggleLoading(context){
-        context.commit("toggleLoading");
-    },
-    toggleCheckedEmployeeIds(context,id){
-        context.commit("toggleCheckedEmployeeIds",id);
+    setCheckedEmployeeIds(context,id){
+        context.commit("setCheckedEmployeeIds",id);
     },
 
-    /**
-     * Ẩn/hiện cảnh báo
-     * @param {*} context 
-     * Author:Vũ Tùng Lâm (30/10/2022)
-     */
-    toggleAlert(context) {
-        context.commit("toggleAlert");
-    },
-
-    /**
-     * Xử lí nội dung của cảnh báo
-     * @param {*} context 
-     * @param {*} alert 
-     * Author:Vũ Tùng Lâm (30/10/2022)
-     */
-    setAlert(context,alert){
-        context.commit("setAlert",alert);
-        context.dispatch("toggleAlert");
-    },
 
     /**
      * Xử lí bộ lọc danh sách nhân viên
@@ -72,7 +53,6 @@ const actions = {
      */
     setFilter(context,filter){
         context.commit("setFilter",filter);
-        context.dispatch("toggleLoading");
     },
     
 
@@ -83,15 +63,16 @@ const actions = {
      */
     async getEmployee(context){
         try {
-            const res = await axios.get(
-            `${CONST_API}/filter`, {params:{pageSize: state.filter.pageSize, pageNumber:state.filter.pageNumber,employeeFilter:state.filter.employeeFilter}}
-            );
-            document.querySelectorAll("table input").forEach(checkbox => checkbox.checked=false);
             context.dispatch("toggleLoading");
+            const res = await axios.get(
+            `${CONST_API}/Employees/filter`, {params:{pageSize: state.filter.pageSize, pageNumber:state.filter.pageNumber,employeeFilter:state.filter.employeeFilter}}
+            );
+            document.querySelectorAll("table input").forEach(checkbox => checkbox.checked=false); 
             context.commit("getEmployee", res.data);
         } catch (error) {
-            context.dispatch("toggleLoading");
             console.error(error);
+        } finally{
+            context.dispatch("toggleLoading");
         }
     },
 
@@ -103,7 +84,7 @@ const actions = {
     async setNewEmployeeCode(context) {
         try {
           const res = await axios.get(
-            `${CONST_API}/NewEmployeeCode`
+            `${CONST_API}/Employees/NewEmployeeCode`
           );
           context.commit("setNewEmployeeCode", res.data);
         } catch (error) {
@@ -118,14 +99,11 @@ const actions = {
      */
     async addEmployee(context) {
         try {
-            context.dispatch("toggleLoading");
-            await axios.post(`${CONST_API}`, state.employee);
-            
+            await axios.post(`${CONST_API}/Employees`, state.employee);
             //thông báo thành công
-            context.dispatch("setAlert", {
+            context.dispatch("setToastMessage", {
                 type: "success",
-                message: "Thêm nhân viên thành công",
-                action: AlertAction.DEFAULT,
+                message: resourceVN.AlertMessage.addEmployeeSuccess,
             });
         
             // Check mode
@@ -153,15 +131,13 @@ const actions = {
      */
     async editEmployee(context) {
         try {
-            context.dispatch("toggleLoading");
             await axios.put(
-                `${CONST_API}/${state.employee.EmployeeId}`,state.employee);
+                `${CONST_API}/Employees/${state.employee.EmployeeId}`,state.employee);
             
             //thông báo thành công
-            context.dispatch("setAlert", {
+            context.dispatch("setToastMessage", {
                 type: "success",
-                message: "Sửa nhân viên thành công",
-                action: AlertAction.DEFAULT,
+                message: resourceVN.AlertMessage.editEmployeeSuccess,
             });
         
             // Check mode
@@ -191,22 +167,22 @@ const actions = {
      */
     async deleteEmployee(context){
         try {
-            await axios.delete(`${CONST_API}/${state.employee.EmployeeId}`);
+            await axios.delete(`${CONST_API}/Employees/${state.employee.EmployeeId}`);
 
             //thông báo thành công
-            context.dispatch("setAlert", {
+            context.dispatch("setToastMessage", {
                 type: "success",
-                message: "Xóa nhân viên thành công",
-                action: AlertAction.DEFAULT,
+                message: resourceVN.AlertMessage.deleteEmployeeSuccess,
             });
 
-            //load lại bộ lọc
-            context.dispatch("setFilter",{
-                pageSize:state.filter.pageSize,
-                pageNumber: 1,
-                employeeFilter: state.filter.employeeFilter
-            })
-
+            //Quay về trang đầu tiên nếu xóa hết bản ghi ở trang cuối cùng
+            if(state.filter.pageNumber == state.totalPage && state.employees.length==1){
+                context.dispatch("setFilter",{
+                    pageSize:state.filter.pageSize,
+                    pageNumber: 1,
+                    employeeFilter: state.filter.employeeFilter
+                })
+            }
             //load lại dữ liệu
             context.dispatch("getEmployee");
         } catch (error) {
@@ -223,21 +199,21 @@ const actions = {
      async deleteBatchEmployee(context){
         try {
             
-            await axios.post(`${CONST_API}/deleteBatch`,state.checkedEmployeeIds);
+            await axios.post(`${CONST_API}/Employees/deleteBatch`,state.checkedEmployeeIds);
             //thông báo thành công
-            context.dispatch("setAlert", {
+            context.dispatch("setToastMessage", {
                 type: "success",
-                message: "Xóa nhân viên thành công",
-                action: AlertAction.DEFAULT,
+                message: resourceVN.AlertMessage.deleteEmployeeSuccess,
             });
 
-            //load lại bộ lọc
-            context.dispatch("setFilter",{
-                pageSize:state.filter.pageSize,
-                pageNumber: 1,
-                employeeFilter: state.filter.employeeFilter
-            })
-
+            //Quay về trang đầu tiên nếu xóa hết bản ghi ở trang cuối cùng
+            if(state.filter.pageNumber == state.totalPage && state.employees.length==state.checkedEmployeeIds.length){
+                context.dispatch("setFilter",{
+                    pageSize:state.filter.pageSize,
+                    pageNumber: 1,
+                    employeeFilter: state.filter.employeeFilter
+                })
+            }
             //load lại dữ liệu
             context.dispatch("getEmployee");
         } catch (error) {
@@ -255,6 +231,26 @@ const actions = {
         context.commit("selectEmployee",emp);
     },
 
+    /**
+     * xuất dữ liệu ra file excel
+     * @param {*} context 
+     * Author:Vũ Tùng Lâm (30/10/2022)
+     */
+    exportToExcel(context) {
+        axios({
+              url: `${CONST_API}/Employees/exportToExcel`,
+              method: 'GET',
+              responseType: 'blob',
+        }).then((res) => {
+               var FILE = window.URL.createObjectURL(new Blob([res.data]));
+               var docUrl = document.createElement('a');
+               docUrl.href = FILE;
+               docUrl.setAttribute('download', 'Danh_sach_nhan_vien.xlsx');
+               document.body.appendChild(docUrl);
+               docUrl.click();
+        }).catch((error) => handleException(error, context));
+    }
+
 }
 /**
  * Xử lí lỗi
@@ -262,8 +258,6 @@ const actions = {
  * @param {*} context 
  */
 const handleException = (error, context) => {
-    context.dispatch("toggleLoading");
-    console.log(error);
     //thông báo có lỗi
     context.dispatch("setAlert", {
       type: "danger",

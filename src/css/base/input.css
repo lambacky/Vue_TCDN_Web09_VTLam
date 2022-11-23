@@ -4,9 +4,9 @@
     flex-direction: column;
     gap:8px;
     position: relative;
-    overflow:hidden;
-    white-space:nowrap;
-    text-overflow: ellipsis;
+}
+.dialog .input-wrapper{
+    padding-bottom: 24px;
 }
 
 .input-label{
@@ -53,6 +53,10 @@
     position:absolute;
     bottom:4px;
     font-size:12px;
+    width:100%;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow: ellipsis;
 }
 
 .combobox .input-error-mess{
